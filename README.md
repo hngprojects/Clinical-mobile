@@ -1,6 +1,6 @@
-# React Native Starter
+# Clinsights
 
-Production-ready Expo starter for HNG teams using **Vertical Slice Architecture**. Clone and ship — the structure scales, the defaults work out of the box.
+AI-powered laboratory result interpretation and verified doctor second opinions for Nigerians.
 
 ## Stack
 
@@ -25,7 +25,7 @@ Production-ready Expo starter for HNG teams using **Vertical Slice Architecture*
 
 ```bash
 git clone <repo-url>
-cd react-native-starter
+cd Clinical-mobile
 pnpm install
 pnpm start
 ```
