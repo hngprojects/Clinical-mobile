@@ -43,6 +43,7 @@ export function OnboardingPager({
   onSlideChange,
 }: OnboardingPagerProps) {
   const scrollRef = useRef<ScrollView>(null);
+  const currentSlideRef = useRef(currentSlide);
   const insets = useSafeAreaInsets();
   const { brand } = useTheme();
   const { width, layoutScale, pagerContentWidth, textScale, topBalanceOffset } =
@@ -57,6 +58,18 @@ export function OnboardingPager({
   );
 
   useEffect(() => {
+    currentSlideRef.current = currentSlide;
+  }, [currentSlide]);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo({ x: currentSlideRef.current * width, animated: false });
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [width]);
+
+  useEffect(() => {
     if (slides.length <= 1) return;
 
     const timer = setTimeout(() => {
@@ -65,14 +78,6 @@ export function OnboardingPager({
 
     return () => clearTimeout(timer);
   }, [currentSlide, goToSlide, slides.length]);
-
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      scrollRef.current?.scrollTo({ x: currentSlide * width, animated: false });
-    });
-
-    return () => cancelAnimationFrame(frame);
-  }, [currentSlide, width]);
 
   const syncSlideFromOffset = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(e.nativeEvent.contentOffset.x / width);
