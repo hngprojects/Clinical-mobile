@@ -169,7 +169,10 @@ export function LoginForm() {
     mode: 'onChange',
   });
 
+  const emailValue = watch('email');
   const passwordValue = watch('password');
+  const isLoginDisabled =
+    isPending || !emailValue.trim() || !passwordValue.trim();
 
   const onSubmit = (data: LoginFormData) => {
     setServerErrors([]);
@@ -207,12 +210,13 @@ export function LoginForm() {
           <Controller
             control={control}
             name="password"
-            render={({ field: { value, onChange, onBlur } }) => (
+            render={({ field: { value, onChange, onBlur }, fieldState: { error: fe } }) => (
               <TextInput
                 label="Password"
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
+                error={fe?.message}
                 secureTextEntry={!showPassword}
                 textContentType="password"
                 placeholder="Enter your password"
@@ -266,6 +270,7 @@ export function LoginForm() {
           onPress={handleSubmit(onSubmit)}
           isLoading={isPending}
           style={{ marginTop: spacing.xs }}
+          disabled={isLoginDisabled}
         />
 
         <Divider />
