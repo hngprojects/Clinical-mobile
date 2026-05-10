@@ -197,7 +197,7 @@ export function LoginForm() {
               error={fe?.message}
               keyboardType="email-address"
               textContentType="emailAddress"
-              placeholder="chinma@gmail.com"
+              placeholder="e.g johndoe@gmail.com"
               autoCapitalize="none"
             />
           )}
