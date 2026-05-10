@@ -76,7 +76,8 @@ export function OnboardingPager({
 
   const syncSlideFromOffset = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(e.nativeEvent.contentOffset.x / width);
-    if (index !== currentSlide) onSlideChange(index);
+    const clampedIndex = Math.min(Math.max(index, 0), slides.length - 1);
+    if (clampedIndex !== currentSlide) onSlideChange(clampedIndex);
   };
 
   const accentColor = slides[currentSlide]?.accentColor;
