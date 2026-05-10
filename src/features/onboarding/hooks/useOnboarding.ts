@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { SLIDES } from '../data/slides';
 import { useOnboardingStore } from '../store/onboarding.store';
@@ -9,25 +9,25 @@ export function useOnboarding() {
 
   const isLastSlide = currentSlide === SLIDES.length - 1;
 
-  const goToNext = () => {
+  const goToNext = useCallback(() => {
     if (isLastSlide) {
       completeOnboarding();
     } else {
       setCurrentSlide((i) => i + 1);
     }
-  };
+  }, [completeOnboarding, isLastSlide]);
 
-  const goToPrevious = () => {
+  const goToPrevious = useCallback(() => {
     setCurrentSlide((i) => Math.max(0, i - 1));
-  };
+  }, []);
 
-  const goToSlide = (index: number) => {
+  const goToSlide = useCallback((index: number) => {
     setCurrentSlide(Math.min(Math.max(index, 0), SLIDES.length - 1));
-  };
+  }, []);
 
-  const skip = () => {
+  const skip = useCallback(() => {
     completeOnboarding();
-  };
+  }, [completeOnboarding]);
 
   return {
     hasCompleted,
