@@ -8,7 +8,8 @@
     "scheme": "clinsights",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.iamblvck.clinsights"
     },
     "android": {
       "adaptiveIcon": {
