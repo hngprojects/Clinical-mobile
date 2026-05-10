@@ -21,9 +21,9 @@ export function useOnboarding() {
     setCurrentSlide((i) => Math.max(0, i - 1));
   };
 
-  const goToSlide = (index: number) => {
+  const goToSlide = useCallback((index: number) => {
     setCurrentSlide(Math.min(Math.max(index, 0), SLIDES.length - 1));
-  };
+  }, []);
 
   const skip = () => {
     completeOnboarding();
