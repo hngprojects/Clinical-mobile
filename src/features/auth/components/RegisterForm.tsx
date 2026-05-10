@@ -10,7 +10,7 @@ import { useRegister } from '../hooks/useRegister';
 import { RegisterFormData, registerSchema } from '../schemas/auth.schemas';
 
 const BLUE = '#1F6DC9';
-const TEXT = '#202124';
+const TEXT = '#1B1B1B';
 const MUTED = '#686868';
 const BORDER = '#D5D5D5';
 const DISABLED = '#F4F4F4';
@@ -33,6 +33,8 @@ export function RegisterForm() {
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
+      firstName: '',
+      lastName: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -62,7 +64,12 @@ export function RegisterForm() {
 
   const onSubmit = (data: RegisterFormData) => {
     register(
-      { email: data.email.trim(), password: data.password },
+      {
+        firstName: data.firstName.trim(),
+        lastName: data.lastName.trim(),
+        email: data.email.trim(),
+        password: data.password,
+      },
       {
         onSuccess: () => {
           router.push({
@@ -76,6 +83,32 @@ export function RegisterForm() {
 
   return (
     <View style={styles.container}>
+      <ControlledInput
+        control={control}
+        name="firstName"
+        label="First Name"
+        placeholder="Enter your first name"
+        textContentType="givenName"
+        autoCapitalize="words"
+        isFocused={focusedField === 'firstName'}
+        error={errors.firstName?.message}
+        onFocus={() => setFocusedField('firstName')}
+        onBlur={() => setFocusedField(null)}
+      />
+
+      <ControlledInput
+        control={control}
+        name="lastName"
+        label="Last Name"
+        placeholder="Enter your last name"
+        textContentType="familyName"
+        autoCapitalize="words"
+        isFocused={focusedField === 'lastName'}
+        error={errors.lastName?.message}
+        onFocus={() => setFocusedField('lastName')}
+        onBlur={() => setFocusedField(null)}
+      />
+
       <ControlledInput
         control={control}
         name="email"
@@ -235,7 +268,8 @@ interface ControlledInputProps {
   rightAccessory?: React.ReactNode;
   keyboardType?: 'default' | 'email-address';
   secureTextEntry?: boolean;
-  textContentType?: 'emailAddress' | 'newPassword';
+  textContentType?: 'emailAddress' | 'newPassword' | 'givenName' | 'familyName';
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   onFocus: () => void;
   onBlur: () => void;
 }
@@ -251,9 +285,11 @@ function ControlledInput({
   keyboardType,
   secureTextEntry,
   textContentType,
+  autoCapitalize,
   onFocus,
   onBlur,
 }: ControlledInputProps) {
+  const showError = !!error && name !== 'password' && name !== 'email';
   return (
     <View style={styles.field}>
       <Typography variant="body1" style={styles.label}>
@@ -267,7 +303,7 @@ function ControlledInput({
             style={[
               styles.inputShell,
               isFocused && styles.focusedInput,
-              error && name === 'confirmPassword' && styles.errorInput,
+              showError && styles.errorInput,
             ]}
           >
             <TextInput
@@ -279,11 +315,11 @@ function ControlledInput({
                 onBlur();
               }}
               placeholder={placeholder}
-              placeholderTextColor="#8C8C8C"
+              placeholderTextColor="#767676"
               keyboardType={keyboardType}
               secureTextEntry={secureTextEntry}
               textContentType={textContentType}
-              autoCapitalize="none"
+              autoCapitalize={autoCapitalize ?? 'none'}
               autoCorrect={false}
               style={styles.textInput}
             />
@@ -291,7 +327,7 @@ function ControlledInput({
           </View>
         )}
       />
-      {error && name === 'confirmPassword' && (
+      {showError && (
         <Typography variant="body1" color={ERROR} style={styles.fieldError}>
           {error}
         </Typography>
@@ -323,8 +359,10 @@ const styles = StyleSheet.create({
   },
   label: {
     color: TEXT,
-    fontSize: 20,
-    lineHeight: 28,
+    fontSize: 14,
+    fontWeight: '400',
+    lineHeight: 21,
+    letterSpacing: -0.14,
   },
   inputShell: {
     alignItems: 'center',
@@ -344,8 +382,10 @@ const styles = StyleSheet.create({
   textInput: {
     color: TEXT,
     flex: 1,
-    fontSize: 18,
-    lineHeight: 24,
+    fontSize: 14,
+    fontWeight: '400',
+    lineHeight: 21,
+    letterSpacing: -0.14,
     padding: 0,
   },
   inputAction: {
