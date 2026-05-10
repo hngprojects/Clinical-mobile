@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: android-build
+  group: android-build-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -61,11 +61,30 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Set build environment
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "staging" ]; then
+            echo "APP_ENV=staging" >> $GITHUB_ENV
+            echo "EXPO_PUBLIC_API_BASE_URL=https://api.staging.clinical-tool.hng14.com" >> $GITHUB_ENV
+            echo "GRADLE_TASK=assembleDebug" >> $GITHUB_ENV
+            echo "APK_PATH=android/app/build/outputs/apk/debug/app-debug.apk" >> $GITHUB_ENV
+            echo "ARTIFACT_NAME=android-staging-debug-apk" >> $GITHUB_ENV
+          elif [ "${GITHUB_REF_NAME}" = "main" ]; then
+            echo "APP_ENV=production" >> $GITHUB_ENV
+            echo "EXPO_PUBLIC_API_BASE_URL=https://api.clinical-tool.hng14.com" >> $GITHUB_ENV
+            echo "GRADLE_TASK=assembleDebug" >> $GITHUB_ENV
+            echo "APK_PATH=android/app/build/outputs/apk/debug/app-debug.apk" >> $GITHUB_ENV
+            echo "ARTIFACT_NAME=android-production-debug-apk" >> $GITHUB_ENV
+          else
+            echo "Unsupported branch: ${GITHUB_REF_NAME}"
+            exit 1
+          fi
+
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: "17"
 
       - name: Cache Gradle
         uses: actions/cache@v5
@@ -88,25 +107,25 @@ jobs:
           restore-keys: |
             android-gradle-${{ runner.os }}-
 
-      - name: Build debug APK
+      - name: Build APK
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon
+        run: ./gradlew $GRADLE_TASK --no-daemon
 
       - name: Upload APK artifact
         id: artifact
         uses: actions/upload-artifact@v7
         with:
-          name: android-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.APK_PATH }}
           retention-days: 7
 
       - name: Upload to Appetize
         id: appetize
-        if: ${{ env.APPETIZE_API_TOKEN != '' }}
+        if: ${{ env.APPETIZE_API_TOKEN != '' && github.ref_name == 'staging' }}
         uses: appetizeio/github-action-appetize@v1.0.5
         with:
           apiToken: ${{ secrets.APPETIZE_API_TOKEN }}
-          appFile: android/app/build/outputs/apk/debug/app-debug.apk
+          appFile: ${{ env.APK_PATH }}
           platform: android
         continue-on-error: true
 
@@ -116,10 +135,12 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ **APK built successfully**" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo "| Key | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment | $APP_ENV |" >> $GITHUB_STEP_SUMMARY
           echo "| Branch | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Commit | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| API Base URL | \`$EXPO_PUBLIC_API_BASE_URL\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Artifact | [Download APK](${{ steps.artifact.outputs.artifact-url }}) |" >> $GITHUB_STEP_SUMMARY
           if [ -n "${{ steps.appetize.outputs.publicKey }}" ]; then
             echo "| Appetize | [▶ Preview on Appetize](https://appetize.io/app/${{ steps.appetize.outputs.publicKey }}) |" >> $GITHUB_STEP_SUMMARY
