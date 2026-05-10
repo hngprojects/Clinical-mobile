@@ -1,25 +1,42 @@
 import { Stack } from 'expo-router';
 import React from 'react';
+import { StyleSheet, View } from 'react-native';
 
 import { RegisterForm } from '@/features/auth';
 import { Screen, Typography } from '@/shared/components';
-import { useTheme } from '@/shared/theme';
 
 export default function RegisterScreen() {
-  const { spacing } = useTheme();
-
   return (
     <>
-      <Stack.Screen options={{ title: 'Create Account' }} />
+      <Stack.Screen options={{ headerShown: false }} />
       <Screen scrollable padding>
-        <Typography variant="h2" style={{ marginBottom: spacing.xs }}>
-          Create Account
-        </Typography>
-        <Typography variant="body1" style={{ marginBottom: spacing.xl }}>
-          Join and start building with your team.
-        </Typography>
+        <View style={styles.header}>
+          <Typography variant="h1" style={styles.title}>
+            Create Account
+          </Typography>
+          <Typography variant="body1" color="#686868" style={styles.subtitle}>
+            Insert your details to create your account in minutes
+          </Typography>
+        </View>
         <RegisterForm />
       </Screen>
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  header: {
+    marginBottom: 46,
+    marginTop: 78,
+  },
+  title: {
+    color: '#202124',
+    fontSize: 34,
+    lineHeight: 42,
+  },
+  subtitle: {
+    fontSize: 17,
+    lineHeight: 24,
+    marginTop: 8,
+  },
+});

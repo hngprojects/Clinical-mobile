@@ -6,8 +6,16 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+}
+
+export interface RegisterOtpResponse {
+  email: string;
+  expiresInSeconds: number;
+}
+
+export interface VerifyOtpRequest {
+  email: string;
+  code: string;
 }
 
 export interface AuthTokens {
