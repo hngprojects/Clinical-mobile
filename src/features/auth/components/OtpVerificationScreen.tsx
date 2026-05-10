@@ -1,12 +1,16 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Keyboard,
+  Image,
   Modal,
+  Platform,
   Pressable,
   StyleSheet,
-  Text,
   TextInput,
+  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 
@@ -23,7 +27,10 @@ const MUTED = '#686868';
 const BORDER = '#D5D5D5';
 const DISABLED = '#F4F4F4';
 const ERROR = '#FF4247';
-const SUCCESS = '#1FA586';
+const INVALID_OTP_MESSAGE = 'The code you entered was incorrect, check again.';
+const VERIFY_ERROR_MESSAGE =
+  "We couldn't verify you right now. Please check your connection and try again.";
+const checkedIcon = require('../../../../assets/images/checked.png');
 
 export function OtpVerificationScreen() {
   const { email: rawEmail } = useLocalSearchParams<{ email?: string }>();
@@ -46,14 +53,14 @@ export function OtpVerificationScreen() {
     },
     onError: (error) => {
       if (error.code === 'INVALID_OTP') {
-        setCodeError(error.message);
+        setCodeError(INVALID_OTP_MESSAGE);
         setBannerError(null);
         return;
       }
 
       setCode('');
       setCodeError(null);
-      setBannerError(error.message);
+      setBannerError(VERIFY_ERROR_MESSAGE);
     },
   });
 
@@ -63,7 +70,9 @@ export function OtpVerificationScreen() {
       setCodeError(null);
       setBannerError(null);
       setTimeLeft(expiresInSeconds);
-      inputRef.current?.focus();
+    },
+    onError: () => {
+      setBannerError(VERIFY_ERROR_MESSAGE);
     },
   });
 
@@ -80,6 +89,7 @@ export function OtpVerificationScreen() {
   const handleCodeChange = (value: string) => {
     setCode(value.replace(/\D/g, '').slice(0, 6));
     setCodeError(null);
+    setBannerError(null);
   };
 
   const handleVerify = () => {
@@ -100,145 +110,149 @@ export function OtpVerificationScreen() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <Screen padding={false}>
-        {bannerError ? (
-          <View style={styles.banner}>
-            <Typography variant="body1" color={MUTED} align="center" style={styles.bannerText}>
-              {bannerError}
-            </Typography>
-          </View>
-        ) : (
-          <View style={styles.header}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Go back"
-              hitSlop={12}
-              onPress={() => router.back()}
-              style={styles.backButton}
-            >
-              <Text style={styles.backText}>‹</Text>
-            </Pressable>
-            <Typography variant="h2" align="center" style={styles.headerTitle}>
-              OTP Verification
-            </Typography>
-            <View style={styles.headerSpacer} />
-          </View>
-        )}
-
-        <View style={styles.content}>
-          <Typography variant="h1" style={styles.title}>
-            Verify Your Email
-          </Typography>
-          <Typography variant="body1" color={MUTED} style={styles.subtitle}>
-            Enter the 6 digit code we sent to{' '}
-            <Typography variant="body1" style={styles.emailText}>
-              {email}
-            </Typography>
-          </Typography>
-
-          <View style={styles.otpSection}>
-            <Typography variant="body1" color="#A0A0A0" style={styles.otpLabel}>
-              OTP
-            </Typography>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Enter OTP code"
-              onPress={() => inputRef.current?.focus()}
-              style={styles.otpRow}
-            >
-              {digits.map((digit, index) => {
-                const isActive = code.length === index && !codeError;
-                return (
-                  <View
-                    key={`${index}-${digit}`}
-                    style={[
-                      styles.otpBox,
-                      (digit || isActive) && styles.otpBoxActive,
-                      codeError && styles.otpBoxError,
-                    ]}
-                  >
-                    <Typography variant="h1" align="center" style={styles.otpDigit}>
-                      {digit}
-                    </Typography>
-                  </View>
-                );
-              })}
-            </Pressable>
-            <TextInput
-              ref={inputRef}
-              value={code}
-              onChangeText={handleCodeChange}
-              keyboardType="number-pad"
-              textContentType="oneTimeCode"
-              maxLength={6}
-              autoFocus
-              style={styles.hiddenInput}
-            />
-            {codeError && (
-              <Typography variant="body1" color={ERROR} style={styles.codeError}>
-                {codeError}
-              </Typography>
-            )}
-          </View>
-
-          <Pressable
-            accessibilityRole="button"
-            disabled={!isReady || isLoading}
-            onPress={handleVerify}
-            style={[styles.verifyButton, (!isReady || isLoading) && styles.verifyDisabled]}
-          >
-            {isLoading ? (
-              <View style={styles.loadingContent}>
-                <ActivityIndicator color={BLUE} />
-                <Typography variant="body1" color="#808080" style={styles.verifyText}>
-                  Verifying Email
+        <TouchableWithoutFeedback accessible={false} onPress={Keyboard.dismiss}>
+          <View style={styles.screenBody}>
+            {bannerError ? (
+              <View style={styles.banner}>
+                <Typography variant="body1" color={MUTED} align="center" style={styles.bannerText}>
+                  {bannerError}
                 </Typography>
               </View>
             ) : (
-              <Typography
-                variant="body1"
-                color={isReady ? '#FFFFFF' : '#808080'}
-                style={styles.verifyText}
-              >
-                Verify Email
-              </Typography>
+              <View style={styles.header}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Go back"
+                  hitSlop={12}
+                  onPress={() => router.back()}
+                  style={styles.backButton}
+                >
+                  <Ionicons name="chevron-back" size={28} color="#111827" />
+                </Pressable>
+                <Typography variant="h2" align="center" style={styles.headerTitle}>
+                  OTP Verification
+                </Typography>
+                <View style={styles.headerSpacer} />
+              </View>
             )}
-          </Pressable>
 
-          {timeLeft > 0 ? (
-            <View style={styles.timerRow}>
-              <Typography variant="body1" color={MUTED} style={styles.timerText}>
-                Code expires in{' '}
+            <View style={styles.content}>
+              <Typography variant="h1" style={styles.title}>
+                Verify Your Email
               </Typography>
-              <Typography variant="body1" color="#000000" style={styles.timerValue}>
-                00:{String(timeLeft).padStart(2, '0')}
+              <Typography variant="body1" color={MUTED} style={styles.subtitle}>
+                Enter the 6 digit code we sent to{' '}
+                <Typography variant="body1" style={styles.emailText}>
+                  {email}
+                </Typography>
               </Typography>
-            </View>
-          ) : (
-            <View style={styles.resendRow}>
-              <Typography variant="body1" style={styles.resendText}>
-                {"Didn't receive the code? "}
-              </Typography>
+
+              <View style={styles.otpSection}>
+                <Typography variant="body1" color="#A0A0A0" style={styles.otpLabel}>
+                  OTP
+                </Typography>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Enter OTP code"
+                  onPress={() => inputRef.current?.focus()}
+                  style={styles.otpRow}
+                >
+                  {digits.map((digit, index) => {
+                    const isCurrent = code.length > 0 && code.length === index;
+                    const isComplete = code.length === 6;
+                    return (
+                      <View
+                        key={`${index}-${digit}`}
+                        style={[
+                          styles.otpBox,
+                          !codeError && (isCurrent || (isComplete && digit)) && styles.otpBoxActive,
+                          codeError && styles.otpBoxError,
+                        ]}
+                      >
+                        <Typography variant="h1" align="center" style={styles.otpDigit}>
+                          {digit}
+                        </Typography>
+                      </View>
+                    );
+                  })}
+                </Pressable>
+                <TextInput
+                  ref={inputRef}
+                  value={code}
+                  onChangeText={handleCodeChange}
+                  keyboardType={Platform.OS === 'ios' ? 'number-pad' : 'numeric'}
+                  inputMode="numeric"
+                  returnKeyType="done"
+                  textContentType="oneTimeCode"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  style={styles.hiddenInput}
+                />
+                {codeError && (
+                  <Typography variant="body1" color={ERROR} style={styles.codeError}>
+                    {codeError}
+                  </Typography>
+                )}
+              </View>
+
               <Pressable
                 accessibilityRole="button"
-                disabled={resendOtp.isPending}
-                onPress={() => resendOtp.mutate(email)}
+                disabled={!isReady || isLoading}
+                onPress={handleVerify}
+                style={[styles.verifyButton, (!isReady || isLoading) && styles.verifyDisabled]}
               >
-                <Typography variant="body1" color={BLUE} style={styles.resendLink}>
-                  Resend Code
-                </Typography>
+                {isLoading ? (
+                  <View style={styles.loadingContent}>
+                    <ActivityIndicator color={BLUE} />
+                    <Typography variant="body1" color="#808080" style={styles.verifyText}>
+                      Verifying Email
+                    </Typography>
+                  </View>
+                ) : (
+                  <Typography
+                    variant="body1"
+                    color={isReady ? '#FFFFFF' : '#808080'}
+                    style={styles.verifyText}
+                  >
+                    Verify Email
+                  </Typography>
+                )}
               </Pressable>
+
+              {timeLeft > 0 ? (
+                <View style={styles.timerRow}>
+                  <Typography variant="body1" color={MUTED} style={styles.timerText}>
+                    Code expires in{' '}
+                  </Typography>
+                  <Typography variant="body1" color="#000000" style={styles.timerValue}>
+                    00:{String(timeLeft).padStart(2, '0')}
+                  </Typography>
+                </View>
+              ) : (
+                <View style={styles.resendRow}>
+                  <Typography variant="body1" style={styles.resendText}>
+                    {"Didn't receive the code? "}
+                  </Typography>
+                  <Pressable
+                    accessibilityRole="button"
+                    disabled={resendOtp.isPending}
+                    onPress={() => resendOtp.mutate(email)}
+                  >
+                    <Typography variant="body1" color={BLUE} style={styles.resendLink}>
+                      Resend Code
+                    </Typography>
+                  </Pressable>
+                </View>
+              )}
             </View>
-          )}
-        </View>
+          </View>
+        </TouchableWithoutFeedback>
       </Screen>
 
       <Modal transparent visible={Boolean(verifiedSession)} animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.successCard}>
-            <View style={styles.successIcon}>
-              <Text style={styles.successCheck}>✓</Text>
-              <View style={styles.successShadow} />
-            </View>
+            <Image source={checkedIcon} style={styles.successIcon} />
             <Typography variant="h1" align="center" style={styles.successTitle}>
               Sign-up successful
             </Typography>
@@ -259,6 +273,9 @@ export function OtpVerificationScreen() {
 }
 
 const styles = StyleSheet.create({
+  screenBody: {
+    flex: 1,
+  },
   header: {
     alignItems: 'center',
     flexDirection: 'row',
@@ -267,11 +284,6 @@ const styles = StyleSheet.create({
   },
   backButton: {
     width: 44,
-  },
-  backText: {
-    color: '#111827',
-    fontSize: 44,
-    lineHeight: 44,
   },
   headerTitle: {
     flex: 1,
@@ -295,7 +307,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 36,
+    paddingTop: 28,
   },
   title: {
     color: TEXT,
@@ -314,7 +326,7 @@ const styles = StyleSheet.create({
     lineHeight: 26,
   },
   otpSection: {
-    marginTop: 62,
+    marginTop: 40,
   },
   otpLabel: {
     fontSize: 18,
@@ -322,18 +334,18 @@ const styles = StyleSheet.create({
   },
   otpRow: {
     flexDirection: 'row',
-    gap: 20,
+    gap: 10,
     justifyContent: 'space-between',
   },
   otpBox: {
     alignItems: 'center',
-    borderColor: BORDER,
-    borderRadius: 10,
-    borderWidth: 1.5,
-    flex: 1,
-    height: 60,
+    borderColor: '#D0D0D0',
+    borderRadius: 8,
+    borderWidth: 1,
+    height: 48,
     justifyContent: 'center',
-    maxWidth: 56,
+    padding: 10,
+    width: 44,
   },
   otpBoxActive: {
     borderColor: BLUE,
@@ -364,7 +376,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     height: 58,
     justifyContent: 'center',
-    marginTop: 60,
+    marginTop: 40,
   },
   verifyDisabled: {
     backgroundColor: DISABLED,
@@ -382,7 +394,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 28,
+    marginTop: 16,
   },
   timerText: {
     fontSize: 20,
@@ -396,7 +408,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    marginTop: 28,
+    marginTop: 16,
   },
   resendText: {
     color: '#000000',
@@ -422,29 +434,9 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   successIcon: {
-    alignItems: 'center',
-    backgroundColor: SUCCESS,
-    borderRadius: 56,
-    height: 112,
-    justifyContent: 'center',
+    height: 87.98095703125,
     marginBottom: 24,
-    overflow: 'hidden',
-    width: 112,
-  },
-  successCheck: {
-    color: '#FFFFFF',
-    fontSize: 66,
-    fontWeight: '800',
-    zIndex: 1,
-  },
-  successShadow: {
-    backgroundColor: 'rgba(0, 0, 0, 0.22)',
-    height: 90,
-    position: 'absolute',
-    right: -24,
-    top: 48,
-    transform: [{ rotate: '45deg' }],
-    width: 90,
+    width: 87.98095703125,
   },
   successTitle: {
     fontSize: 32,

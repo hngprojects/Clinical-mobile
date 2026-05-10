@@ -5,6 +5,7 @@ import {
   PressableProps,
   StyleProp,
   StyleSheet,
+  TextStyle,
   View,
   ViewStyle,
 } from 'react-native';
@@ -17,17 +18,23 @@ type ButtonVariant = 'primary' | 'outline' | 'ghost';
 
 interface ButtonProps extends Omit<PressableProps, 'style'> {
   label: string;
+  loadingLabel?: string;
+  loadingIndicatorColor?: string;
   variant?: ButtonVariant;
   isLoading?: boolean;
   style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
 }
 
 export function Button({
   label,
+  loadingLabel,
+  loadingIndicatorColor,
   variant = 'primary',
   isLoading = false,
   disabled,
   style,
+  textStyle,
   ...props
 }: ButtonProps) {
   const { colors, spacing } = useTheme();
@@ -38,10 +45,12 @@ export function Button({
     {
       paddingVertical: spacing.sm + 4,
       paddingHorizontal: spacing.lg,
-      borderRadius: spacing.sm,
-      opacity: isDisabled ? 0.6 : 1,
+      borderRadius: 12,
+      opacity: isDisabled && variant !== 'primary' ? 0.6 : 1,
     },
-    variant === 'primary' && { backgroundColor: colors.primary },
+    variant === 'primary' && {
+      backgroundColor: isDisabled ? '#F5F5F5' : colors.primary,
+    },
     variant === 'outline' && {
       backgroundColor: 'transparent',
       borderWidth: 1.5,
@@ -51,7 +60,8 @@ export function Button({
     style,
   ];
 
-  const textColor = variant === 'primary' ? '#FFFFFF' : colors.primary;
+  const textColor =
+    variant === 'primary' ? (isDisabled ? colors.textSecondary : '#FFFFFF') : colors.primary;
 
   return (
     <Pressable
@@ -62,9 +72,16 @@ export function Button({
     >
       <View style={styles.content}>
         {isLoading ? (
-          <ActivityIndicator color={textColor} size="small" />
+          <>
+            <ActivityIndicator color={loadingIndicatorColor ?? textColor} size="small" />
+            {loadingLabel ? (
+              <Typography variant="body1" color={textColor} style={[styles.label, textStyle]}>
+                {loadingLabel}
+              </Typography>
+            ) : null}
+          </>
         ) : (
-          <Typography variant="body1" color={textColor} style={styles.label}>
+          <Typography variant="body1" color={textColor} style={[styles.label, textStyle]}>
             {label}
           </Typography>
         )}

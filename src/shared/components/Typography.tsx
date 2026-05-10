@@ -8,6 +8,7 @@ interface TypographyProps extends TextProps {
   variant?: TypographyVariant;
   color?: string;
   align?: TextStyle['textAlign'];
+  children?: React.ReactNode;
 }
 
 export function Typography({ variant = 'body1', color, align, style, ...props }: TypographyProps) {
