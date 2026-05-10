@@ -7,7 +7,7 @@ import { useOnboardingStore } from '@/features/onboarding/store/onboarding.store
 import { AppProviders } from '@/providers/AppProviders';
 import { useAppReady } from '@/shared/hooks/useAppReady';
 
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function RootLayoutNav() {
   const { isReady } = useAppReady();
@@ -18,9 +18,14 @@ function RootLayoutNav() {
   // useEffect fires post-render/paint, so the correct screen is visible
   // underneath before the splash fades — no blank flash.
   useEffect(() => {
-    if (isReady) {
-      SplashScreen.hideAsync();
-    }
+    if (!isReady) return;
+
+    // Small defer to ensure native view controller is ready
+    const timer = setTimeout(() => {
+      SplashScreen.hideAsync().catch(() => {});
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [isReady]);
 
   if (!isReady) return null;
