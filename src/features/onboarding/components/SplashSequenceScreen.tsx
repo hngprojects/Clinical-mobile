@@ -22,7 +22,7 @@ const LOGO_WORDMARK_GAP = 22;
 const FIGMA_FRAME_WIDTH = 375;
 const FIGMA_FRAME_HEIGHT = 812;
 const WORDMARK_COLOR = '#0D6DDB';
-const BACKGROUND_PATTERN_OPACITY = 0.035;
+const BACKGROUND_PATTERN_OPACITY = 0.03;
 const logo = require('../../../../assets/images/splash-icon.png');
 const patternTile = require('../../../../assets/images/splash-logo-pattern-tile.png');
 

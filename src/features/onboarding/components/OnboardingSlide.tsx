@@ -9,7 +9,7 @@ const SLIDE_HORIZONTAL_PADDING = 16;
 const BASE_FRAME_WIDTH = 375;
 const BASE_FRAME_HEIGHT = 812;
 const MAX_CONTENT_WIDTH = 390;
-const ARTWORK_WRAP_BASE_HEIGHT = 405;
+const ARTWORK_WRAP_BASE_HEIGHT = 320;
 const SHORT_SCREEN_HEIGHT = 700;
 const ARTWORK_RATIOS = {
   cards: 956 / 1372,
@@ -28,7 +28,9 @@ export function OnboardingSlide({ slide }: OnboardingSlideProps) {
     1.15,
   );
   const contentWidth = Math.min(width - SLIDE_HORIZONTAL_PADDING * 2, MAX_CONTENT_WIDTH);
-  const artworkHeightRatio = height < SHORT_SCREEN_HEIGHT ? 0.44 : 0.52;
+  const artworkHeightRatio = height < SHORT_SCREEN_HEIGHT ? 0.35 : 0.41;
+  const textScale =
+    height < SHORT_SCREEN_HEIGHT ? 1.1 : Math.min(Math.max(width / BASE_FRAME_WIDTH, 1.25), 1.32);
   const artworkWrapHeight = Math.min(
     ARTWORK_WRAP_BASE_HEIGHT * layoutScale,
     height * artworkHeightRatio,
@@ -45,11 +47,33 @@ export function OnboardingSlide({ slide }: OnboardingSlideProps) {
         />
       </View>
 
-      <View style={[styles.copy, { width: contentWidth, marginTop: 34 * layoutScale }]}>
-        <Typography variant="h1" align="center" style={styles.title}>
+      <View style={[styles.copy, { width: contentWidth, marginTop: 24 * layoutScale }]}>
+        <Typography
+          variant="h1"
+          align="center"
+          style={[
+            styles.title,
+            {
+              fontSize: 24 * textScale,
+              lineHeight: 31 * textScale,
+              letterSpacing: -0.48 * textScale,
+            },
+          ]}
+        >
           {slide.title}
         </Typography>
-        <Typography variant="body1" align="center" style={styles.subtitle}>
+        <Typography
+          variant="body1"
+          align="center"
+          style={[
+            styles.subtitle,
+            {
+              fontSize: 12 * textScale,
+              lineHeight: 18 * textScale,
+              letterSpacing: -0.12 * textScale,
+            },
+          ]}
+        >
           {slide.subtitle}
         </Typography>
       </View>
@@ -112,7 +136,6 @@ const styles = StyleSheet.create({
   },
   copy: {
     alignItems: 'center',
-    minHeight: 89,
     gap: 8,
   },
   title: {
