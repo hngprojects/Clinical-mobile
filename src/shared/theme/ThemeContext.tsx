@@ -1,10 +1,9 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useColorScheme as useSystemColorScheme } from 'react-native';
 
 import { STORAGE_KEYS } from '@/shared/constants/keys';
 import { asyncStorage } from '@/shared/storage/asyncStorage';
 
-import { Colors, darkColors, lightColors } from './colors';
+import { Colors, lightColors } from './colors';
 import { spacing } from './spacing';
 import { typography } from './typography';
 
@@ -26,8 +25,7 @@ interface ThemeProviderProps {
   initialMode?: ThemeMode;
 }
 
-export function ThemeProvider({ children, initialMode = 'system' }: ThemeProviderProps) {
-  const systemScheme = useSystemColorScheme();
+export function ThemeProvider({ children, initialMode = 'light' }: ThemeProviderProps) {
   const [mode, setModeState] = useState<ThemeMode>(initialMode);
 
   useEffect(() => {
@@ -41,8 +39,8 @@ export function ThemeProvider({ children, initialMode = 'system' }: ThemeProvide
     await asyncStorage.setItem(STORAGE_KEYS.THEME_MODE, newMode);
   }, []);
 
-  const isDark = mode === 'dark' || (mode === 'system' && systemScheme === 'dark');
-  const colors = isDark ? darkColors : lightColors;
+  const isDark = false;
+  const colors = lightColors;
 
   const value = useMemo(
     () => ({ mode, setMode, colors, typography, spacing, isDark }),
