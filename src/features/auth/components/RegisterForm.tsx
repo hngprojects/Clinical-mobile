@@ -5,17 +5,53 @@ import { useForm } from 'react-hook-form';
 import {
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SvgXml } from 'react-native-svg';
 
 import { Button, FormField, Typography } from '@/shared/components';
 import { useTheme } from '@/shared/theme';
 
 import { useRegister } from '../hooks/useRegister';
 import { RegisterFormData, registerSchema } from '../schemas/auth.schemas';
+
+const googleSvg = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M19.8055 8.0415H19V8H10V12H15.6515C14.827 14.3285 12.6115 16 10 16C6.6865 16 4 13.3135 4 10C4 6.6865 6.6865 4 10 4C11.5295 4 12.921 4.577 13.9805 5.5195L16.809 2.691C15.023 1.0265 12.634 0 10 0C4.4775 0 0 4.4775 0 10C0 15.5225 4.4775 20 10 20C15.5225 20 20 15.5225 20 10C20 9.3295 19.931 8.675 19.8055 8.0415Z" fill="#FFC107"/>
+<path d="M1.15332 5.3455L4.43882 7.755C5.32782 5.554 7.48082 4 10.0003 4C11.5298 4 12.9213 4.577 13.9808 5.5195L16.8093 2.691C15.0233 1.0265 12.6343 0 10.0003 0C6.15932 0 2.82832 2.1685 1.15332 5.3455Z" fill="#FF3D00"/>
+<path d="M10.0002 20.0003C12.5832 20.0003 14.9302 19.0118 16.7047 17.4043L13.6097 14.7853C12.5721 15.5749 11.3039 16.0017 10.0002 16.0003C7.39916 16.0003 5.19066 14.3418 4.35866 12.0273L1.09766 14.5398C2.75266 17.7783 6.11366 20.0003 10.0002 20.0003Z" fill="#4CAF50"/>
+<path d="M19.8055 8.0415H19V8H10V12H15.6515C15.2571 13.1082 14.5467 14.0766 13.608 14.7855L13.6095 14.7845L16.7045 17.4035C16.4855 17.6025 20 15 20 10C20 9.3295 19.931 8.675 19.8055 8.0415Z" fill="#1976D2"/>
+</svg>`;
+
+interface GoogleButtonProps {
+  onPress: () => void;
+}
+
+function GoogleButton({ onPress }: GoogleButtonProps) {
+  const { colors, spacing } = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[
+        styles.socialButton,
+        {
+          borderColor: colors.border,
+          borderRadius: spacing.sm,
+          paddingVertical: spacing.sm + 4,
+        },
+      ]}
+      android_ripple={{ color: colors.border }}
+    >
+      <SvgXml xml={googleSvg} width={20} height={20} />
+      <Typography variant="body1" style={{ marginLeft: 8, fontWeight: '500' }}>
+        Google
+      </Typography>
+    </Pressable>
+  );
+}
 
 export function RegisterForm() {
   const { spacing, colors } = useTheme();
@@ -95,6 +131,8 @@ export function RegisterForm() {
           style={{ marginTop: spacing.xs }}
         />
 
+        <GoogleButton onPress={() => {}} />
+
         <View style={[styles.row, { justifyContent: 'center' }]}>
           <Typography variant="body2" className="text-gray-500">
             Already have an account?{' '}
@@ -122,5 +160,11 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
+  },
+  socialButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
   },
 });
