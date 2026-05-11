@@ -377,13 +377,14 @@ function AuthOptionButton({
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      style={[
+      style={({ pressed }) => [
         styles.optionButton,
         {
           borderColor: colors.border,
           borderRadius: spacing.sm,
           paddingVertical: spacing.sm + 4,
         },
+        pressed && styles.pressed,
       ]}
     >
       <View style={styles.optionContent}>
@@ -481,6 +482,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1.5,
     justifyContent: 'center',
+  },
+  pressed: {
+    opacity: 0.78,
+    transform: [{ scale: 0.98 }],
   },
   optionContent: {
     alignItems: 'center',

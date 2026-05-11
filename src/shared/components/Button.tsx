@@ -73,7 +73,7 @@ export function Button({
 
   return (
     <Pressable
-      style={containerStyle}
+      style={({ pressed }) => [containerStyle, pressed && !isDisabled && styles.pressed]}
       disabled={isDisabled}
       android_ripple={{ color: colors.primaryPressed }}
       {...props}
@@ -83,7 +83,11 @@ export function Button({
           <>
             <ActivityIndicator color={loadingIndicatorColor ?? textColor} size="small" />
             {loadingLabel ? (
-              <Typography variant={labelVariant} color={textColor} style={[styles.label, textStyle]}>
+              <Typography
+                variant={labelVariant}
+                color={textColor}
+                style={[styles.label, textStyle]}
+              >
                 {loadingLabel}
               </Typography>
             ) : null}
@@ -110,5 +114,9 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: '600',
+  },
+  pressed: {
+    opacity: 0.78,
+    transform: [{ scale: 0.98 }],
   },
 });

@@ -107,13 +107,14 @@ function GoogleButton({ onPress }: GoogleButtonProps) {
   return (
     <Pressable
       onPress={onPress}
-      style={[
+      style={({ pressed }) => [
         styles.socialButton,
         {
           borderColor: colors.border,
           borderRadius: spacing.sm,
           paddingVertical: spacing.sm + 4,
         },
+        pressed && styles.pressed,
       ]}
       android_ripple={{ color: colors.border }}
     >
@@ -371,6 +372,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1.5,
     minHeight: 52,
+  },
+  pressed: {
+    opacity: 0.78,
+    transform: [{ scale: 0.98 }],
   },
   inputText: {
     fontSize: Math.round(17 * TEXT_SCALE),
