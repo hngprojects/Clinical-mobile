@@ -3,6 +3,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { STORAGE_KEYS } from '@/shared/constants/keys';
 import { asyncStorage } from '@/shared/storage/asyncStorage';
 
+import { brand } from './brand';
 import { Colors, lightColors } from './colors';
 import { spacing } from './spacing';
 import { typography } from './typography';
@@ -13,6 +14,7 @@ interface ThemeContextValue {
   mode: ThemeMode;
   setMode: (mode: ThemeMode) => void;
   colors: Colors;
+  brand: typeof brand;
   typography: typeof typography;
   spacing: typeof spacing;
   isDark: boolean;
@@ -43,7 +45,7 @@ export function ThemeProvider({ children, initialMode = 'light' }: ThemeProvider
   const colors = lightColors;
 
   const value = useMemo(
-    () => ({ mode, setMode, colors, typography, spacing, isDark }),
+    () => ({ mode, setMode, colors, brand, typography, spacing, isDark }),
     [mode, setMode, colors, isDark],
   );
 

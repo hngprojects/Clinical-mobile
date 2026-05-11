@@ -1,3 +1,5 @@
+export { brand } from './brand';
+export type { Brand } from './brand';
 export { darkColors, lightColors } from './colors';
 export type { Colors } from './colors';
 export { spacing } from './spacing';

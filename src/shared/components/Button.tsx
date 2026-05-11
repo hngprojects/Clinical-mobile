@@ -5,11 +5,13 @@ import {
   PressableProps,
   StyleProp,
   StyleSheet,
+  TextStyle,
   View,
   ViewStyle,
 } from 'react-native';
 
 import { useTheme } from '@/shared/theme';
+import { TypographyVariant } from '@/shared/theme/typography';
 
 import { Typography } from './Typography';
 
@@ -20,6 +22,10 @@ interface ButtonProps extends Omit<PressableProps, 'style'> {
   variant?: ButtonVariant;
   isLoading?: boolean;
   style?: StyleProp<ViewStyle>;
+  contentStyle?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
+  textColor?: string;
+  labelVariant?: TypographyVariant;
 }
 
 export function Button({
@@ -28,6 +34,10 @@ export function Button({
   isLoading = false,
   disabled,
   style,
+  contentStyle,
+  textStyle,
+  textColor: textColorOverride,
+  labelVariant = 'body1',
   ...props
 }: ButtonProps) {
   const { colors, spacing } = useTheme();
@@ -51,7 +61,7 @@ export function Button({
     style,
   ];
 
-  const textColor = variant === 'primary' ? '#FFFFFF' : colors.primary;
+  const textColor = textColorOverride ?? (variant === 'primary' ? '#FFFFFF' : colors.primary);
 
   return (
     <Pressable
@@ -60,11 +70,11 @@ export function Button({
       android_ripple={{ color: colors.primaryPressed }}
       {...props}
     >
-      <View style={styles.content}>
+      <View style={[styles.content, contentStyle]}>
         {isLoading ? (
           <ActivityIndicator color={textColor} size="small" />
         ) : (
-          <Typography variant="body1" color={textColor} style={styles.label}>
+          <Typography variant={labelVariant} color={textColor} style={[styles.label, textStyle]}>
             {label}
           </Typography>
         )}
