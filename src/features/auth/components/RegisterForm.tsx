@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Dimensions, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 
 import { Button, GoogleLogo, Typography } from '@/shared/components';
 import { useTheme } from '@/shared/theme';
@@ -58,6 +59,15 @@ export function RegisterForm({
     { label: 'Password must have one upper case', met: /[A-Z]/.test(password) },
     { label: 'Password must have one special character', met: /[^A-Za-z0-9]/.test(password) },
   ];
+
+  const showComingSoon = () => {
+    Toast.show({
+      type: 'info',
+      text1: 'Coming soon',
+      text2: 'ClinSight is working on this.',
+      position: 'bottom',
+    });
+  };
 
   const onSubmit = (data: RegisterFormData) => {
     register(
@@ -148,12 +158,17 @@ export function RegisterForm({
           <View style={styles.criteriaList}>
             {criteria.map((item) => (
               <View key={item.label} style={styles.criteriaRow}>
+                <Ionicons
+                  name={item.met ? 'checkmark' : 'close'}
+                  size={18}
+                  color={item.met ? colors.success : colors.error}
+                  style={styles.criteriaIcon}
+                />
                 <Typography
                   variant="body1"
                   color={item.met ? colors.success : colors.textSecondary}
                   style={styles.criteriaText}
                 >
-                  {item.met ? 'Pass: ' : 'Need: '}
                   {item.label}
                 </Typography>
               </View>
@@ -225,8 +240,8 @@ export function RegisterForm({
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
       </View>
 
-      <AuthOptionButton label="Google" showGoogleLogo />
-      <AuthOptionButton label="Continue as guest" />
+      <AuthOptionButton label="Google" showGoogleLogo onPress={showComingSoon} />
+      <AuthOptionButton label="Continue as guest" onPress={showComingSoon} />
 
       <View style={styles.loginRow}>
         <Typography variant="body1" color={colors.textSecondary} style={styles.loginText}>
@@ -348,11 +363,20 @@ function ControlledInput({
   );
 }
 
-function AuthOptionButton({ label, showGoogleLogo }: { label: string; showGoogleLogo?: boolean }) {
+function AuthOptionButton({
+  label,
+  showGoogleLogo,
+  onPress,
+}: {
+  label: string;
+  showGoogleLogo?: boolean;
+  onPress: () => void;
+}) {
   const { colors, spacing } = useTheme();
   return (
     <Pressable
       accessibilityRole="button"
+      onPress={onPress}
       style={[
         styles.optionButton,
         {
@@ -408,7 +432,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   criteriaRow: {
+    alignItems: 'center',
     flexDirection: 'row',
+    gap: 8,
+  },
+  criteriaIcon: {
+    width: 18,
   },
   label: {
     fontSize: Math.round(16 * TEXT_SCALE),
