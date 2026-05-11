@@ -4,14 +4,15 @@ import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Modal, Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
+import Toast from 'react-native-toast-message';
 
 import { Button, Typography } from '@/shared/components';
 import { TextInput } from '@/shared/components/TextInput';
 import { useTheme } from '@/shared/theme';
 
+import { PASSWORD_RULES } from '../constants/passwordRules';
 import { useLogin } from '../hooks/useLogin';
 import { LoginFormData, loginSchema } from '../schemas/auth.schemas';
-import { PASSWORD_RULES } from '../constants/passwordRules';
 
 const googleSvg = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M19.8055 8.0415H19V8H10V12H15.6515C14.827 14.3285 12.6115 16 10 16C6.6865 16 4 13.3135 4 10C4 6.6865 6.6865 4 10 4C11.5295 4 12.921 4.577 13.9805 5.5195L16.809 2.691C15.023 1.0265 12.634 0 10 0C4.4775 0 0 4.4775 0 10C0 15.5225 4.4775 20 10 20C15.5225 20 20 15.5225 20 10C20 9.3295 19.931 8.675 19.8055 8.0415Z" fill="#FFC107"/>
@@ -50,21 +51,25 @@ function PasswordRules({ value }: PasswordRulesProps) {
 
   if (!value) return null;
 
-  const failingRules = PASSWORD_RULES.filter((r) => !r.test(value));
-  if (failingRules.length === 0) return null;
-
   return (
     <View style={styles.rulesContainer}>
-      {failingRules.map((rule, i) => (
-        <View key={i} style={styles.ruleRow}>
-          <Typography variant="body2" color={colors.error} style={styles.ruleCross}>
-            ✕
-          </Typography>
-          <Typography variant="body2" color={colors.textSecondary}>
-            {rule.label}
-          </Typography>
-        </View>
-      ))}
+      {PASSWORD_RULES.map((rule, i) => {
+        const isPassing = rule.test(value);
+        return (
+          <View key={i} style={styles.ruleRow}>
+            <Typography
+              variant="body2"
+              color={isPassing ? colors.success || '#10B981' : colors.error}
+              style={styles.ruleCross}
+            >
+              {isPassing ? '✓' : '✕'}
+            </Typography>
+            <Typography variant="body2" color={colors.textSecondary}>
+              {rule.label}
+            </Typography>
+          </View>
+        );
+      })}
     </View>
   );
 }
@@ -161,7 +166,6 @@ export function LoginForm() {
   const { mutate: login, isPending, error } = useLogin();
   const [showSuccess, setShowSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [serverErrors, setServerErrors] = useState<string[]>([]);
 
   const { control, handleSubmit, watch } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -171,16 +175,21 @@ export function LoginForm() {
 
   const emailValue = watch('email');
   const passwordValue = watch('password');
+  const allPasswordRulesPassing = PASSWORD_RULES.every((rule) => rule.test(passwordValue));
   const isLoginDisabled =
-    isPending || !emailValue.trim() || !passwordValue.trim();
+    isPending || !emailValue.trim() || !passwordValue.trim() || !allPasswordRulesPassing;
 
   const onSubmit = (data: LoginFormData) => {
-    setServerErrors([]);
     login(data, {
       onSuccess: () => setShowSuccess(true),
       onError: (err: Error) => {
         const msg = err?.message ?? 'Something went wrong. Please try again.';
-        setServerErrors(msg.split('\n').filter(Boolean));
+        Toast.show({
+          type: 'error',
+          text1: msg,
+          position: 'bottom',
+          // duration: 4000,
+        });
       },
     });
   };
@@ -243,27 +252,6 @@ export function LoginForm() {
             </Typography>
           </TouchableOpacity>
         </View>
-
-        {serverErrors.length > 0 && (
-          <View style={styles.rulesContainer}>
-            {serverErrors.map((e, i) => (
-              <View key={i} style={styles.ruleRow}>
-                <Typography variant="body2" color={colors.error} style={styles.ruleCross}>
-                  ✕
-                </Typography>
-                <Typography variant="body2" color={colors.textSecondary}>
-                  {e}
-                </Typography>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {error && !serverErrors.length && (
-          <Typography variant="body2" color={colors.error} align="center">
-            {error.message}
-          </Typography>
-        )}
 
         <Button
           label="Login"
@@ -370,5 +358,5 @@ const styles = StyleSheet.create({
   fontXSmall: {
     fontSize: 12,
     fontWeight: '400',
-  }
+  },
 });
