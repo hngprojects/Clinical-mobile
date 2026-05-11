@@ -14,7 +14,7 @@ export default function LoginScreen() {
       <Stack.Screen options={{ title: 'Login', headerShown: false }} />
       <Screen scrollable padding keyboardAvoiding>
         {/* Header */}
-        <View style={{ marginBottom: spacing.xl }}>
+        <View style={{ marginBottom: spacing.xl, marginTop: spacing.xl }}>
           <Typography variant="h2" style={{ marginBottom: spacing.xs }}>
             Welcome Back
           </Typography>

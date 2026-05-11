@@ -2,7 +2,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import { Button, FormField, Typography } from '@/shared/components';
 import { useTheme } from '@/shared/theme';
@@ -11,7 +18,7 @@ import { useRegister } from '../hooks/useRegister';
 import { RegisterFormData, registerSchema } from '../schemas/auth.schemas';
 
 export function RegisterForm() {
-  const { spacing } = useTheme();
+  const { spacing, colors } = useTheme();
   const { mutate: register, isPending, error } = useRegister();
 
   const { control, handleSubmit } = useForm<RegisterFormData>({
@@ -88,11 +95,16 @@ export function RegisterForm() {
           style={{ marginTop: spacing.xs }}
         />
 
-        <Button
-          label="Already have an account? Sign in"
-          variant="ghost"
-          onPress={() => router.back()}
-        />
+        <View style={[styles.row, { justifyContent: 'center' }]}>
+          <Typography variant="body2" className="text-gray-500">
+            Already have an account?{' '}
+          </Typography>
+          <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
+            <Typography variant="body2" color={colors.primary} style={{ fontWeight: '600' }}>
+              Sign In
+            </Typography>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
