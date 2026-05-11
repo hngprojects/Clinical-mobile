@@ -1,4 +1,5 @@
 import { STORAGE_KEYS } from '@/shared/constants/keys';
+import { env } from '@/shared/constants/env';
 import { asyncStorage } from '@/shared/storage/asyncStorage';
 import { createStore } from '@/shared/store/factory';
 
@@ -17,6 +18,12 @@ export const useOnboardingStore = createStore<OnboardingState & OnboardingAction
   isLoading: true,
 
   loadFromStorage: async () => {
+    if (__DEV__ && env.DEV_RESET_ONBOARDING) {
+      await asyncStorage.removeItem(STORAGE_KEYS.ONBOARDING_COMPLETE);
+      set({ hasCompleted: false, isLoading: false });
+      return;
+    }
+
     const value = await asyncStorage.getItem<boolean>(STORAGE_KEYS.ONBOARDING_COMPLETE);
     set({ hasCompleted: value === true, isLoading: false });
   },

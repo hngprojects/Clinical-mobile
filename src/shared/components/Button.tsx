@@ -5,11 +5,13 @@ import {
   PressableProps,
   StyleProp,
   StyleSheet,
+  TextStyle,
   View,
   ViewStyle,
 } from 'react-native';
 
 import { useTheme } from '@/shared/theme';
+import { TypographyVariant } from '@/shared/theme/typography';
 
 import { Typography } from './Typography';
 
@@ -17,17 +19,29 @@ type ButtonVariant = 'primary' | 'outline' | 'ghost';
 
 interface ButtonProps extends Omit<PressableProps, 'style'> {
   label: string;
+  loadingLabel?: string;
+  loadingIndicatorColor?: string;
   variant?: ButtonVariant;
   isLoading?: boolean;
   style?: StyleProp<ViewStyle>;
+  contentStyle?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
+  textColor?: string;
+  labelVariant?: TypographyVariant;
 }
 
 export function Button({
   label,
+  loadingLabel,
+  loadingIndicatorColor,
   variant = 'primary',
   isLoading = false,
   disabled,
   style,
+  contentStyle,
+  textStyle,
+  textColor: textColorOverride,
+  labelVariant = 'body1',
   ...props
 }: ButtonProps) {
   const { colors, spacing } = useTheme();
@@ -38,10 +52,12 @@ export function Button({
     {
       paddingVertical: spacing.sm + 4,
       paddingHorizontal: spacing.lg,
-      borderRadius: spacing.sm,
-      opacity: isDisabled ? 0.6 : 1,
+      borderRadius: 12,
+      opacity: isDisabled && variant !== 'primary' ? 0.6 : 1,
     },
-    variant === 'primary' && { backgroundColor: colors.primary },
+    variant === 'primary' && {
+      backgroundColor: isDisabled ? '#F5F5F5' : colors.primary,
+    },
     variant === 'outline' && {
       backgroundColor: 'transparent',
       borderWidth: 1.5,
@@ -51,20 +67,29 @@ export function Button({
     style,
   ];
 
-  const textColor = variant === 'primary' ? '#FFFFFF' : colors.primary;
+  const textColor =
+    textColorOverride ??
+    (variant === 'primary' ? (isDisabled ? colors.textSecondary : '#FFFFFF') : colors.primary);
 
   return (
     <Pressable
-      style={containerStyle}
+      style={({ pressed }) => [containerStyle, pressed && !isDisabled && styles.pressed]}
       disabled={isDisabled}
       android_ripple={{ color: colors.primaryPressed }}
       {...props}
     >
-      <View style={styles.content}>
+      <View style={[styles.content, contentStyle]}>
         {isLoading ? (
-          <ActivityIndicator color={textColor} size="small" />
+          <>
+            <ActivityIndicator color={loadingIndicatorColor ?? textColor} size="small" />
+            {loadingLabel ? (
+              <Typography variant={labelVariant} color={textColor} style={[styles.label, textStyle]}>
+                {loadingLabel}
+              </Typography>
+            ) : null}
+          </>
         ) : (
-          <Typography variant="body1" color={textColor} style={styles.label}>
+          <Typography variant={labelVariant} color={textColor} style={[styles.label, textStyle]}>
             {label}
           </Typography>
         )}
@@ -85,5 +110,9 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: '600',
+  },
+  pressed: {
+    opacity: 0.78,
+    transform: [{ scale: 0.98 }],
   },
 });

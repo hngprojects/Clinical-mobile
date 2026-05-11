@@ -13,9 +13,7 @@ export const client = create({
 // Lazily imported to avoid circular deps at module load time
 type AuthStateAccessor = () => {
   accessToken: string | null;
-  refreshToken: string | null;
 
-  setSession: (tokens: { accessToken: string; refreshToken: string }, user: any) => void;
   clearSession: () => void;
 };
 
@@ -34,27 +32,8 @@ client.interceptors.request.use((config) => {
 client.interceptors.response.use(
   (res) => res,
   async (error) => {
-    const original = error.config as typeof error.config & { _retry?: boolean };
-
-    if (error.response?.status === 401 && !original._retry && getAuthState) {
-      original._retry = true;
-      const { refreshToken, clearSession } = getAuthState();
-
-      if (!refreshToken) {
-        clearSession();
-        return Promise.reject(toApiError(error));
-      }
-
-      try {
-        const { authApi } = await import('@/features/auth/api/auth.api');
-        const newTokens = await authApi.refreshTokens(refreshToken);
-        getAuthState().setSession(newTokens, getAuthState().accessToken);
-        original.headers.Authorization = `Bearer ${newTokens.accessToken}`;
-        return client(original);
-      } catch {
-        getAuthState().clearSession();
-        return Promise.reject(toApiError(error));
-      }
+    if (error.response?.status === 401 && getAuthState) {
+      getAuthState().clearSession();
     }
 
     return Promise.reject(toApiError(error));
@@ -63,8 +42,19 @@ client.interceptors.response.use(
 
 function toApiError(error: unknown): ApiError {
   if (isAxiosError(error)) {
-    const msg = (error.response?.data as { message?: string })?.message ?? error.message;
-    return new ApiError(msg, error.response?.status ?? 0);
+    const data = error.response?.data as
+      | {
+          code?: string;
+          error?: string;
+          message?: string;
+          detail?: string | { msg?: string; message?: string }[];
+        }
+      | undefined;
+    const detail = Array.isArray(data?.detail)
+      ? (data.detail[0]?.msg ?? data.detail[0]?.message)
+      : data?.detail;
+    const msg = data?.message ?? detail ?? data?.error ?? error.message;
+    return new ApiError(msg, error.response?.status ?? 0, data?.code ?? data?.error);
   }
   return new ApiError('Unknown error', 0);
 }

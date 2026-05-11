@@ -1,16 +1,18 @@
 {
   "expo": {
-    "name": "react-native-starter",
-    "slug": "react-native-starter",
+    "name": "Clinsights",
+    "slug": "clinsights",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "reactnativestarter",
+    "scheme": "clinsights",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.iamblvck.clinsights"
     },
     "android": {
+      "package": "com.iamblvck.clinsights",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -22,7 +24,8 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "bundler": "metro"
     },
     "plugins": [
       "expo-router",

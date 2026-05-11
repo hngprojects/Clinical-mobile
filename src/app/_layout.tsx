@@ -7,6 +7,8 @@ import { useOnboardingStore } from '@/features/onboarding/store/onboarding.store
 import { AppProviders } from '@/providers/AppProviders';
 import { useAppReady } from '@/shared/hooks/useAppReady';
 
+import './global.css';
+
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function RootLayoutNav() {
