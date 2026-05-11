@@ -73,7 +73,7 @@ export function Button({
 
   return (
     <Pressable
-      style={containerStyle}
+      style={({ pressed }) => [containerStyle, pressed && !isDisabled && styles.pressed]}
       disabled={isDisabled}
       android_ripple={{ color: colors.primaryPressed }}
       {...props}
@@ -110,5 +110,9 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: '600',
+  },
+  pressed: {
+    opacity: 0.78,
+    transform: [{ scale: 0.98 }],
   },
 });
