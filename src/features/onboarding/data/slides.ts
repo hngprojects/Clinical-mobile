@@ -1,31 +1,47 @@
+import { ImageSourcePropType } from 'react-native';
+
+import { brand } from '@/shared/theme';
+
 export interface OnboardingSlideData {
   id: string;
   title: string;
   subtitle: string;
-  emoji: string;
   accentColor: string;
+  artwork: {
+    source: ImageSourcePropType;
+    variant: 'cards' | 'beforeAfter' | 'doctorOrbit';
+  };
 }
 
 export const SLIDES: OnboardingSlideData[] = [
   {
-    id: 'welcome',
-    title: 'Welcome to the App',
-    subtitle: 'The fastest way to build something your team will love.',
-    emoji: '👋',
-    accentColor: '#6C63FF',
+    id: 'understand-results',
+    title: 'Understand your lab results',
+    subtitle: 'Upload your lab report and get a clear, simple explanation in seconds',
+    accentColor: brand.colors.onboardingAccent,
+    artwork: {
+      source: require('../../../../assets/images/onboarding/result-cards.png'),
+      variant: 'cards',
+    },
   },
   {
-    id: 'collaborate',
-    title: 'Collaborate Seamlessly',
-    subtitle: 'Work together in real-time with your entire team.',
-    emoji: '🤝',
-    accentColor: '#0EA5E9',
+    id: 'no-more-guessing',
+    title: 'No more guessing your results',
+    subtitle: "Get clear explanations for every value and understand what's happening in your body",
+    accentColor: brand.colors.onboardingAccent,
+    artwork: {
+      source: require('../../../../assets/images/onboarding/before-after.png'),
+      variant: 'beforeAfter',
+    },
   },
   {
-    id: 'achieve',
-    title: 'Achieve More',
-    subtitle: 'Track goals, measure progress, and celebrate every win.',
-    emoji: '🚀',
-    accentColor: '#22C55E',
+    id: 'doctor-second-opinion',
+    title: "Get a doctor's second opinion",
+    subtitle: 'You can request a verified doctor to review your results for an additional fee.',
+    accentColor: brand.colors.onboardingAccent,
+    artwork: {
+      source: require('../../../../assets/images/onboarding/doctor-orbit.png'),
+      variant: 'doctorOrbit',
+    },
   },
 ];

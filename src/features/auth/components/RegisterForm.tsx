@@ -153,7 +153,8 @@ export function RegisterForm({
                   color={item.met ? colors.success : colors.textSecondary}
                   style={styles.criteriaText}
                 >
-                  {item.met ? '✓' : '×'} {item.label}
+                  {item.met ? 'Pass: ' : 'Need: '}
+                  {item.label}
                 </Typography>
               </View>
             ))}

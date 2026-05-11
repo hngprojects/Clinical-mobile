@@ -27,7 +27,7 @@ function delay(ms: number) {
 
 async function login(data: LoginRequest): Promise<AuthResponse> {
   await delay(800);
-  if (data.email === 'jeffery@logickoder.dev' && data.password === 'Password1') {
+  if (data.email === 'jeffery@logickoder.dev' && data.password === 'Password1$') {
     return {
       user: DUMMY_USER,
       tokens: { accessToken: DUMMY_ACCESS, refreshToken: DUMMY_REFRESH },

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import { useTheme } from '@/shared/theme';
+import { TypographyVariant } from '@/shared/theme/typography';
 
 import { Typography } from './Typography';
 
@@ -23,7 +24,10 @@ interface ButtonProps extends Omit<PressableProps, 'style'> {
   variant?: ButtonVariant;
   isLoading?: boolean;
   style?: StyleProp<ViewStyle>;
+  contentStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
+  textColor?: string;
+  labelVariant?: TypographyVariant;
 }
 
 export function Button({
@@ -34,7 +38,10 @@ export function Button({
   isLoading = false,
   disabled,
   style,
+  contentStyle,
   textStyle,
+  textColor: textColorOverride,
+  labelVariant = 'body1',
   ...props
 }: ButtonProps) {
   const { colors, spacing } = useTheme();
@@ -61,7 +68,8 @@ export function Button({
   ];
 
   const textColor =
-    variant === 'primary' ? (isDisabled ? colors.textSecondary : '#FFFFFF') : colors.primary;
+    textColorOverride ??
+    (variant === 'primary' ? (isDisabled ? colors.textSecondary : '#FFFFFF') : colors.primary);
 
   return (
     <Pressable
@@ -70,18 +78,18 @@ export function Button({
       android_ripple={{ color: colors.primaryPressed }}
       {...props}
     >
-      <View style={styles.content}>
+      <View style={[styles.content, contentStyle]}>
         {isLoading ? (
           <>
             <ActivityIndicator color={loadingIndicatorColor ?? textColor} size="small" />
             {loadingLabel ? (
-              <Typography variant="body1" color={textColor} style={[styles.label, textStyle]}>
+              <Typography variant={labelVariant} color={textColor} style={[styles.label, textStyle]}>
                 {loadingLabel}
               </Typography>
             ) : null}
           </>
         ) : (
-          <Typography variant="body1" color={textColor} style={[styles.label, textStyle]}>
+          <Typography variant={labelVariant} color={textColor} style={[styles.label, textStyle]}>
             {label}
           </Typography>
         )}
