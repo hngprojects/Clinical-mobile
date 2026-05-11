@@ -12,6 +12,7 @@
       "bundleIdentifier": "com.iamblvck.clinsights"
     },
     "android": {
+      "package": "com.iamblvck.clinsights",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
