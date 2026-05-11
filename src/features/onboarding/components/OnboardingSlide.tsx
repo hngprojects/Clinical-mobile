@@ -3,6 +3,7 @@ import { Image, ImageStyle, StyleSheet, View } from 'react-native';
 
 import { Typography } from '@/shared/components';
 
+import { useTheme } from '@/shared/theme';
 import { OnboardingSlideData } from '../data/slides';
 import { ONBOARDING_LAYOUT, useOnboardingLayout } from '../hooks/useOnboardingLayout';
 
