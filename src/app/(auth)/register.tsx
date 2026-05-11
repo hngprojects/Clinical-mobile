@@ -10,9 +10,9 @@ export default function RegisterScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Create Account' }} />
+      <Stack.Screen options={{ title: 'Create Account', headerShown: false }} />
       <Screen scrollable padding>
-        <Typography variant="h2" style={{ marginBottom: spacing.xs }}>
+        <Typography variant="h2" style={{ marginBottom: spacing.xs, marginTop: spacing.xl }}>
           Create Account
         </Typography>
         <Typography variant="body1" style={{ marginBottom: spacing.xl }}>

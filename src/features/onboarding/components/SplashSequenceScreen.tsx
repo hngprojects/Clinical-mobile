@@ -12,6 +12,8 @@ import {
   View,
 } from 'react-native';
 
+import { useTheme } from '@/shared/theme';
+
 const SPLASH_SCREEN_NINE_DELAY_MS = 3000;
 const SMART_ANIMATE_DURATION_MS = 300;
 const SPLASH_SCREEN_NINE_HOLD_MS = 900;
@@ -21,13 +23,13 @@ const WORDMARK_HEIGHT = 58;
 const LOGO_WORDMARK_GAP = 22;
 const FIGMA_FRAME_WIDTH = 375;
 const FIGMA_FRAME_HEIGHT = 812;
-const WORDMARK_COLOR = '#0D6DDB';
 const BACKGROUND_PATTERN_OPACITY = 0.03;
 const logo = require('../../../../assets/images/splash-icon.png');
 const patternTile = require('../../../../assets/images/splash-logo-pattern-tile.png');
 
 export function SplashSequenceScreen() {
   const wordmarkOpacity = useRef(new Animated.Value(0)).current;
+  const { brand } = useTheme();
   const { width, height } = useWindowDimensions();
   const scale = Math.min(width / FIGMA_FRAME_WIDTH, height / FIGMA_FRAME_HEIGHT);
   const scaledLogoSize = LOGO_SIZE * scale;
@@ -63,7 +65,7 @@ export function SplashSequenceScreen() {
   }, [wordmarkOpacity]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: brand.colors.onboardingSplashBackground }]}>
       <StatusBar hidden />
       <View pointerEvents="none" style={styles.pattern}>
         <ImageBackground
@@ -101,6 +103,8 @@ export function SplashSequenceScreen() {
                 fontSize: scaledWordmarkFontSize,
                 letterSpacing: -1 * scale,
                 lineHeight: scaledWordmarkFontSize,
+                color: brand.colors.onboardingWordmark,
+                fontFamily: brand.fonts.playfairMedium,
               },
             ]}
           >
@@ -115,7 +119,6 @@ export function SplashSequenceScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F7FC',
     overflow: 'hidden',
   },
   pattern: {
@@ -146,8 +149,6 @@ const styles = StyleSheet.create({
   wordmark: {
     width: WORDMARK_WIDTH,
     height: WORDMARK_HEIGHT,
-    color: WORDMARK_COLOR,
-    fontFamily: 'PlayfairDisplay_500Medium',
     fontSize: 50,
     letterSpacing: -1,
     lineHeight: 50,

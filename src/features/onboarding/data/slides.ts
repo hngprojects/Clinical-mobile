@@ -1,5 +1,7 @@
 import { ImageSourcePropType } from 'react-native';
 
+import { brand } from '@/shared/theme';
+
 export interface OnboardingSlideData {
   id: string;
   title: string;
@@ -16,7 +18,7 @@ export const SLIDES: OnboardingSlideData[] = [
     id: 'understand-results',
     title: 'Understand your lab results',
     subtitle: 'Upload your lab report and get a clear, simple explanation in seconds',
-    accentColor: '#0D6DDB',
+    accentColor: brand.colors.onboardingAccent,
     artwork: {
       source: require('../../../../assets/images/onboarding/result-cards.png'),
       variant: 'cards',
@@ -26,7 +28,7 @@ export const SLIDES: OnboardingSlideData[] = [
     id: 'no-more-guessing',
     title: 'No more guessing your results',
     subtitle: "Get clear explanations for every value and understand what's happening in your body",
-    accentColor: '#0D6DDB',
+    accentColor: brand.colors.onboardingAccent,
     artwork: {
       source: require('../../../../assets/images/onboarding/before-after.png'),
       variant: 'beforeAfter',
@@ -36,7 +38,7 @@ export const SLIDES: OnboardingSlideData[] = [
     id: 'doctor-second-opinion',
     title: "Get a doctor's second opinion",
     subtitle: 'You can request a verified doctor to review your results for an additional fee.',
-    accentColor: '#0D6DDB',
+    accentColor: brand.colors.onboardingAccent,
     artwork: {
       source: require('../../../../assets/images/onboarding/doctor-orbit.png'),
       variant: 'doctorOrbit',

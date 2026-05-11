@@ -4,6 +4,7 @@ import { useColorScheme as useSystemColorScheme } from 'react-native';
 import { STORAGE_KEYS } from '@/shared/constants/keys';
 import { asyncStorage } from '@/shared/storage/asyncStorage';
 
+import { brand } from './brand';
 import { Colors, darkColors, lightColors } from './colors';
 import { spacing } from './spacing';
 import { typography } from './typography';
@@ -14,6 +15,7 @@ interface ThemeContextValue {
   mode: ThemeMode;
   setMode: (mode: ThemeMode) => void;
   colors: Colors;
+  brand: typeof brand;
   typography: typeof typography;
   spacing: typeof spacing;
   isDark: boolean;
@@ -45,7 +47,7 @@ export function ThemeProvider({ children, initialMode = 'system' }: ThemeProvide
   const colors = isDark ? darkColors : lightColors;
 
   const value = useMemo(
-    () => ({ mode, setMode, colors, typography, spacing, isDark }),
+    () => ({ mode, setMode, colors, brand, typography, spacing, isDark }),
     [mode, setMode, colors, isDark],
   );
 
