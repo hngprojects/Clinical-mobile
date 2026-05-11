@@ -50,7 +50,7 @@ export function SplashSequenceScreen() {
 
     const exitTimer = setTimeout(
       () => {
-        router.replace('/(onboarding)/slides');
+        router.replace('/(onboarding)/slides' as never);
       },
       SPLASH_SCREEN_NINE_DELAY_MS + SMART_ANIMATE_DURATION_MS + SPLASH_SCREEN_NINE_HOLD_MS,
     );

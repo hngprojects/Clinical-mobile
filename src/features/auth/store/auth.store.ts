@@ -22,12 +22,12 @@ export const useAuthStore = createStore<AuthState & AuthActions>((set, get) => (
   user: null,
 
   setSession: (tokens, user) => {
-    set({ ...tokens, user });
+    set({ accessToken: tokens.accessToken, refreshToken: tokens.refreshToken ?? null, user });
     secureStorage.saveTokens(tokens).catch(console.warn);
   },
 
   setTokens: (tokens) => {
-    set({ ...tokens });
+    set({ accessToken: tokens.accessToken, refreshToken: tokens.refreshToken ?? null });
   },
 
   clearSession: () => {
@@ -39,7 +39,5 @@ export const useAuthStore = createStore<AuthState & AuthActions>((set, get) => (
 // Register with Axios interceptor (synchronous store access outside React)
 registerAuthStore(() => ({
   accessToken: useAuthStore.getState().accessToken,
-  refreshToken: useAuthStore.getState().refreshToken,
-  setSession: useAuthStore.getState().setSession,
   clearSession: useAuthStore.getState().clearSession,
 }));

@@ -19,6 +19,8 @@ type ButtonVariant = 'primary' | 'outline' | 'ghost';
 
 interface ButtonProps extends Omit<PressableProps, 'style'> {
   label: string;
+  loadingLabel?: string;
+  loadingIndicatorColor?: string;
   variant?: ButtonVariant;
   isLoading?: boolean;
   style?: StyleProp<ViewStyle>;
@@ -30,6 +32,8 @@ interface ButtonProps extends Omit<PressableProps, 'style'> {
 
 export function Button({
   label,
+  loadingLabel,
+  loadingIndicatorColor,
   variant = 'primary',
   isLoading = false,
   disabled,
@@ -48,10 +52,12 @@ export function Button({
     {
       paddingVertical: spacing.sm + 4,
       paddingHorizontal: spacing.lg,
-      borderRadius: spacing.sm,
-      opacity: isDisabled ? 0.6 : 1,
+      borderRadius: 12,
+      opacity: isDisabled && variant !== 'primary' ? 0.6 : 1,
     },
-    variant === 'primary' && { backgroundColor: colors.primary },
+    variant === 'primary' && {
+      backgroundColor: isDisabled ? '#F5F5F5' : colors.primary,
+    },
     variant === 'outline' && {
       backgroundColor: 'transparent',
       borderWidth: 1.5,
@@ -61,7 +67,9 @@ export function Button({
     style,
   ];
 
-  const textColor = textColorOverride ?? (variant === 'primary' ? '#FFFFFF' : colors.primary);
+  const textColor =
+    textColorOverride ??
+    (variant === 'primary' ? (isDisabled ? colors.textSecondary : '#FFFFFF') : colors.primary);
 
   return (
     <Pressable
@@ -72,7 +80,14 @@ export function Button({
     >
       <View style={[styles.content, contentStyle]}>
         {isLoading ? (
-          <ActivityIndicator color={textColor} size="small" />
+          <>
+            <ActivityIndicator color={loadingIndicatorColor ?? textColor} size="small" />
+            {loadingLabel ? (
+              <Typography variant={labelVariant} color={textColor} style={[styles.label, textStyle]}>
+                {loadingLabel}
+              </Typography>
+            ) : null}
+          </>
         ) : (
           <Typography variant={labelVariant} color={textColor} style={[styles.label, textStyle]}>
             {label}
