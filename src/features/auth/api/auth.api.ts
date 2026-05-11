@@ -1,92 +1,149 @@
+import { client } from '@/shared/api/client';
 import { ApiError } from '@/shared/api/types';
 
 import type {
   AuthResponse,
-  AuthTokens,
   LoginRequest,
   RegisterOtpResponse,
   RegisterRequest,
+  ResendOtpRequest,
+  UserProfile,
   VerifyOtpRequest,
 } from './auth.types';
 
-const DUMMY_USER = {
-  id: 'logickoder',
-  email: 'jeffery@logickoder.dev',
-  firstName: 'Jeffery',
-  lastName: 'Orazulike',
-};
+interface ApiSuccess<T> {
+  status?: string;
+  message?: string;
+  data?: T | null;
+}
 
-const DUMMY_ACCESS = 'dummy.access.token';
-const DUMMY_REFRESH = 'dummy.refresh.token';
-const DUMMY_ACCESS_ROTATED = 'dummy.access.token.rotated';
-const DUMMY_SIGN_UP_CODE = '842913';
+interface BackendUser {
+  id: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  firstName?: string;
+  lastName?: string;
+  role?: 'patient' | 'admin';
+  is_email_verified?: boolean;
+  is_active?: boolean;
+  created_at?: string;
+  last_login_at?: string | null;
+}
 
-function delay(ms: number) {
-  return new Promise<void>((resolve) => setTimeout(resolve, ms));
+interface TokenResponse {
+  access_token?: string;
+  refresh_token?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  token_type?: string;
+  expires_in?: number;
+  user: BackendUser;
+}
+
+interface BackendOtpDispatchResponse {
+  email: string;
+  expires_in_seconds?: number;
+  expiresInSeconds?: number;
+}
+
+function requireData<T>(response: ApiSuccess<T>): T {
+  if (!response.data) {
+    throw new ApiError(response.message || 'The server returned an empty response.', 0);
+  }
+  return response.data;
+}
+
+function mapUser(user: BackendUser): UserProfile {
+  return {
+    id: user.id,
+    email: user.email,
+    firstName: user.first_name ?? user.firstName ?? '',
+    lastName: user.last_name ?? user.lastName ?? '',
+    role: user.role,
+    isEmailVerified: user.is_email_verified,
+    isActive: user.is_active,
+    createdAt: user.created_at,
+    lastLoginAt: user.last_login_at,
+  };
+}
+
+function mapAuthResponse(data: TokenResponse): AuthResponse {
+  const accessToken = data.access_token ?? data.accessToken;
+  const refreshToken = data.refresh_token ?? data.refreshToken;
+
+  if (!accessToken) {
+    throw new ApiError('The server did not return an access token.', 0);
+  }
+
+  return {
+    user: mapUser(data.user),
+    tokens: { accessToken, refreshToken },
+  };
+}
+
+function mapOtpResponse(data: BackendOtpDispatchResponse): RegisterOtpResponse {
+  return {
+    email: data.email,
+    expiresInSeconds: data.expires_in_seconds ?? data.expiresInSeconds ?? 30,
+  };
 }
 
 async function login(data: LoginRequest): Promise<AuthResponse> {
-  await delay(800);
-  if (data.email === 'jeffery@logickoder.dev' && data.password === 'Password1$') {
-    return {
-      user: DUMMY_USER,
-      tokens: { accessToken: DUMMY_ACCESS, refreshToken: DUMMY_REFRESH },
-    };
-  }
-  throw new ApiError('Invalid credentials', 401);
+  const response = await client.post<ApiSuccess<TokenResponse>>('/api/v1/auth/login', {
+    email: data.email.trim(),
+    password: data.password,
+  });
+
+  return mapAuthResponse(requireData(response.data));
 }
 
 async function register(data: RegisterRequest): Promise<RegisterOtpResponse> {
-  await delay(1000);
-  if (!data.email || !data.password) {
-    throw new ApiError('Email and password are required', 400);
-  }
+  const response = await client.post<ApiSuccess<BackendOtpDispatchResponse>>(
+    '/api/v1/auth/signup',
+    {
+      first_name: data.firstName.trim(),
+      last_name: data.lastName.trim(),
+      email: data.email.trim(),
+      password: data.password,
+      confirm_password: data.confirmPassword,
+    },
+  );
 
-  return {
-    email: data.email,
-    expiresInSeconds: 30,
-  };
+  return mapOtpResponse(requireData(response.data));
 }
 
 async function verifySignUpOtp(data: VerifyOtpRequest): Promise<AuthResponse> {
-  await delay(900);
-  if (data.code === '000000') {
-    throw new ApiError(
-      "We couldn't verify you right now. Please check your connection and try again.",
-      503,
-      'NETWORK_ERROR',
-    );
-  }
+  try {
+    const response = await client.post<ApiSuccess<TokenResponse>>('/api/v1/auth/verify-otp', {
+      email: data.email.trim(),
+      code: data.code,
+    });
 
-  if (data.code !== DUMMY_SIGN_UP_CODE) {
-    throw new ApiError('The code you entered was incorrect, check again.', 400, 'INVALID_OTP');
+    return mapAuthResponse(requireData(response.data));
+  } catch (error) {
+    if (error instanceof ApiError && [400, 422].includes(error.status)) {
+      throw new ApiError(error.message, error.status, error.code ?? 'INVALID_OTP');
+    }
+    throw error;
   }
-
-  return {
-    user: {
-      id: `user-${Date.now()}`,
-      email: data.email,
-      firstName: '',
-      lastName: '',
-    },
-    tokens: { accessToken: DUMMY_ACCESS, refreshToken: DUMMY_REFRESH },
-  };
 }
 
-async function resendSignUpOtp(email: string): Promise<RegisterOtpResponse> {
-  await delay(700);
-  return {
-    email,
-    expiresInSeconds: 30,
-  };
+async function resendSignUpOtp(
+  emailOrData: string | ResendOtpRequest,
+): Promise<RegisterOtpResponse> {
+  const email = typeof emailOrData === 'string' ? emailOrData : emailOrData.email;
+  const response = await client.post<ApiSuccess<BackendOtpDispatchResponse>>(
+    '/api/v1/auth/resend-otp',
+    { email: email.trim() },
+  );
+
+  return mapOtpResponse(requireData(response.data));
 }
 
-async function refreshTokens(refreshToken: string): Promise<AuthTokens> {
-  await delay(400);
-  if (refreshToken === DUMMY_REFRESH) {
-    return { accessToken: DUMMY_ACCESS_ROTATED, refreshToken: DUMMY_REFRESH };
-  }
-  throw new ApiError('Refresh token invalid', 401);
+async function me(): Promise<UserProfile> {
+  const response = await client.get<ApiSuccess<BackendUser>>('/api/v1/auth/me');
+  return mapUser(requireData(response.data));
 }
 
-export const authApi = { login, register, verifySignUpOtp, resendSignUpOtp, refreshTokens };
+export const authApi = { login, register, verifySignUpOtp, resendSignUpOtp, me };

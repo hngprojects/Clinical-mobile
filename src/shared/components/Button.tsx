@@ -83,11 +83,7 @@ export function Button({
           <>
             <ActivityIndicator color={loadingIndicatorColor ?? textColor} size="small" />
             {loadingLabel ? (
-              <Typography
-                variant={labelVariant}
-                color={textColor}
-                style={[styles.label, textStyle]}
-              >
+              <Typography variant={labelVariant} color={textColor} style={[styles.label, textStyle]}>
                 {loadingLabel}
               </Typography>
             ) : null}

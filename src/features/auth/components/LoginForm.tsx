@@ -266,8 +266,11 @@ export function LoginForm() {
 
           <PasswordRules value={passwordValue} />
 
-          <TouchableOpacity onPress={showComingSoon} style={{ alignSelf: 'flex-end' }}>
-            <Typography variant="label" color={colors.primary} style={styles.forgotText}>
+          <TouchableOpacity
+            onPress={() => router.push('/(auth)/forgot-password' as never)}
+            style={{ alignSelf: 'flex-end' }}
+          >
+            <Typography variant="label" color={colors.primary}>
               Forgot Password?
             </Typography>
           </TouchableOpacity>

@@ -76,6 +76,7 @@ export function RegisterForm({
         lastName: data.lastName.trim(),
         email: data.email.trim(),
         password: data.password,
+        confirmPassword: data.confirmPassword,
       },
       {
         onSuccess: () => onOtpSent(data.email.trim()),
