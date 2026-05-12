@@ -62,7 +62,7 @@ export function NotificationsScreen() {
               No Notifications Yet!
             </Typography>
             <Typography variant="body1" color={colors.textSecondary} align="center">
-              We'll notify you when there's something new to review.
+              We&apos;ll notify you when there&apos;s something new to review.
             </Typography>
           </View>
         </View>
@@ -77,7 +77,12 @@ export function NotificationsScreen() {
         contentContainerStyle={{ paddingBottom: spacing.xl }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.sectionHeader, { paddingHorizontal: spacing.md, paddingVertical: spacing.md }]}>
+        <View
+          style={[
+            styles.sectionHeader,
+            { paddingHorizontal: spacing.md, paddingVertical: spacing.md },
+          ]}
+        >
           <Typography variant="body1" style={styles.sectionLabel}>
             Today
           </Typography>
