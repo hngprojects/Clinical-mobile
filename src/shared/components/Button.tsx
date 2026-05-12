@@ -19,6 +19,7 @@ type ButtonVariant = 'primary' | 'outline' | 'ghost';
 
 interface ButtonProps extends Omit<PressableProps, 'style'> {
   label: string;
+  leftElement?: React.ReactNode;
   loadingLabel?: string;
   loadingIndicatorColor?: string;
   variant?: ButtonVariant;
@@ -32,6 +33,7 @@ interface ButtonProps extends Omit<PressableProps, 'style'> {
 
 export function Button({
   label,
+  leftElement,
   loadingLabel,
   loadingIndicatorColor,
   variant = 'primary',
@@ -73,32 +75,48 @@ export function Button({
 
   return (
     <Pressable
-      style={({ pressed }) => [containerStyle, pressed && !isDisabled && styles.pressed]}
+      style={({ pressed }) => [styles.pressable, pressed && !isDisabled && styles.pressed]}
       disabled={isDisabled}
       android_ripple={{ color: colors.primaryPressed }}
       {...props}
     >
-      <View style={[styles.content, contentStyle]}>
-        {isLoading ? (
-          <>
-            <ActivityIndicator color={loadingIndicatorColor ?? textColor} size="small" />
-            {loadingLabel ? (
-              <Typography variant={labelVariant} color={textColor} style={[styles.label, textStyle]}>
-                {loadingLabel}
+      <View style={containerStyle}>
+        <View style={[styles.content, contentStyle]}>
+          {isLoading ? (
+            <>
+              <ActivityIndicator color={loadingIndicatorColor ?? textColor} size="small" />
+              {loadingLabel ? (
+                <Typography
+                  variant={labelVariant}
+                  color={textColor}
+                  style={[styles.label, textStyle]}
+                >
+                  {loadingLabel}
+                </Typography>
+              ) : null}
+            </>
+          ) : (
+            <>
+              {leftElement}
+              <Typography
+                variant={labelVariant}
+                color={textColor}
+                style={[styles.label, textStyle]}
+              >
+                {label}
               </Typography>
-            ) : null}
-          </>
-        ) : (
-          <Typography variant={labelVariant} color={textColor} style={[styles.label, textStyle]}>
-            {label}
-          </Typography>
-        )}
+            </>
+          )}
+        </View>
       </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
+  pressable: {
+    width: '100%',
+  },
   base: {
     alignItems: 'center',
     justifyContent: 'center',
