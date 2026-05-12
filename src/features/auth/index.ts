@@ -6,10 +6,12 @@ export type {
   VerifyOtpRequest
 } from './api/auth.types';
 export { ForgotPasswordForm } from './components/ForgotPasswordForm';
+export { ForgotPasswordScreen } from './components/ForgotPasswordScreen';
 export { LoginForm } from './components/LoginForm';
 export { OtpVerificationScreen } from './components/OtpVerificationScreen';
 export { RegisterForm } from './components/RegisterForm';
 export { ResetPasswordForm } from './components/ResetPasswordForm';
+export { ResetPasswordScreen } from './components/ResetPasswordScreen';
 export { useAuthSession } from './hooks/useAuthSession';
 export { useForgotPassword } from './hooks/useForgotPassword';
 export { useLogin } from './hooks/useLogin';
