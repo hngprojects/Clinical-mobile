@@ -5,7 +5,6 @@ import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   Modal,
-  Pressable,
   StyleSheet,
   TextInput as RNTextInput,
   TouchableOpacity,
@@ -110,6 +109,7 @@ function GoogleButton({ isLoading, onPress }: GoogleButtonProps) {
       leftElement={<SvgXml xml={googleSvg} width={20} height={20} />}
       onPress={onPress}
       variant="ghost"
+      contentStyle={styles.socialButtonContent}
       style={[
         styles.socialButton,
         {
@@ -201,7 +201,6 @@ export function LoginForm() {
           type: 'error',
           text1: msg,
           position: 'bottom',
-          // duration: 4000,
         });
       },
     });
@@ -424,9 +423,9 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     minHeight: 45,
   },
-  pressed: {
-    opacity: 0.78,
-    transform: [{ scale: 0.98 }],
+  socialButtonContent: {
+    justifyContent: 'center',
+    width: '100%',
   },
   label: {
     fontSize: 14,
@@ -464,6 +463,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Inter_600SemiBold',
     lineHeight: 20,
+    textDecorationLine: 'underline',
+  },
+  forgotLink: {
     textDecorationLine: 'underline',
   },
   primaryButton: {
@@ -508,6 +510,12 @@ const styles = StyleSheet.create({
   },
   signupLink: {
     textDecorationLine: 'underline',
+  },
+
+  socialSection: {
+    alignItems: 'center',
+    gap: 12,
+    width: '100%',
   },
 
   fontHeadingSmall: {

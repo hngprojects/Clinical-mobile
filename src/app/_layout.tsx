@@ -1,6 +1,8 @@
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
+import * as Linking from 'expo-linking';
+import { useRouter } from 'expo-router';
 
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession';
 import { useOnboardingStore } from '@/features/onboarding/store/onboarding.store';
@@ -11,10 +13,34 @@ import './global.css';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
+function handleDeepLink(url: string, router: any) {
+  const parsed = Linking.parse(url);
+
+  if (parsed.path === 'reset-password' && parsed.queryParams?.token) {
+    router.push({
+      pathname: '/(auth)/reset-password',
+      params: { token: parsed.queryParams.token },
+    });
+  }
+}
+
 function RootLayoutNav() {
   const { isReady } = useAppReady();
   const { isLoggedIn } = useAuthSession();
   const hasCompleted = useOnboardingStore((s) => s.hasCompleted);
+  const router = useRouter();
+
+  useEffect(() => {
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      handleDeepLink(url, router);
+    });
+
+    Linking.getInitialURL().then((url) => {
+      if (url) handleDeepLink(url, router);
+    });
+
+    return () => subscription.remove();
+  }, [router]);
 
   // Hide splash only AFTER React has painted the navigation tree.
   // useEffect fires post-render/paint, so the correct screen is visible
