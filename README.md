@@ -162,7 +162,7 @@ The Axios client auto-attaches `Authorization: Bearer <token>` to every request 
 
 | Script              | What it does                       |
 | ------------------- | ---------------------------------- |
-| `pnpm start`        | Start Expo dev server              |
+| `   | Start Expo dev server              |
 | `pnpm android`      | Open on Android emulator           |
 | `pnpm ios`          | Open on iOS simulator              |
 | `pnpm test`         | Run Jest tests                     |
