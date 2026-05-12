@@ -3,20 +3,25 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Dimensions, Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Modal,
+  StyleSheet,
+  TextInput as RNTextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import Toast from 'react-native-toast-message';
 
 import { Button, Typography } from '@/shared/components';
-import { TextInput } from '@/shared/components/TextInput';
 import { useTheme } from '@/shared/theme';
 
 import { PASSWORD_RULES } from '../constants/passwordRules';
+import { useGoogleAuth } from '../hooks/useGoogleAuth';
 import { useLogin } from '../hooks/useLogin';
 import { LoginFormData, loginSchema } from '../schemas/auth.schemas';
+import { AuthSuccessIcon } from './AuthSuccessIcon';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const TEXT_SCALE = Math.min(Math.max(SCREEN_WIDTH / 375, 1), 1.12);
 const AUTH_BLUE = '#1F6DC9';
 
 const googleSvg = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -35,16 +40,6 @@ const eyeSlashSvg = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none"
 const eyeSvg = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M2.04703 9.20547C1.79367 9.56072 1.66699 9.73839 1.66699 10.0013C1.66699 10.2642 1.79367 10.4419 2.04703 10.7971C3.18541 12.3935 6.09264 15.8346 10.0003 15.8346C13.908 15.8346 16.8152 12.3935 17.9537 10.7971C18.207 10.4419 18.3337 10.2642 18.3337 10.0013C18.3337 9.73839 18.207 9.56072 17.9537 9.20547C16.8152 7.60917 13.908 4.16797 10.0003 4.16797C6.09264 4.16797 3.18541 7.60917 2.04703 9.20547Z" stroke="#6B7280" stroke-width="1.5"/>
 <path d="M12.5003 10.0013C12.5003 11.382 11.381 12.5013 10.0003 12.5013C8.61961 12.5013 7.50033 11.382 7.50033 10.0013C7.50033 8.62061 8.61961 7.50133 10.0003 7.50133C11.381 7.50133 12.5003 8.62061 12.5003 10.0013Z" stroke="#6B7280" stroke-width="1.5"/>
-</svg>`;
-
-const successCheckSvg = `<svg width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<rect width="87.981" height="87.981" fill="url(#pattern0_5729_42841)"/>
-<defs>
-<pattern id="pattern0_5729_42841" patternContentUnits="objectBoundingBox" width="1" height="1">
-<use xlink:href="#image0_5729_42841" transform="scale(0.00195312)"/>
-</pattern>
-<image id="image0_5729_42841" width="512" height="512" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAX3AAAF9wBGQRXVgAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAACgHSURBVHja7d17kFaFnefhCMiqIJfuVtkaxpJhLNfd2uDqupsqHQctZ2JNzRrXSLkpV8UMKKJIc5eLCAjNTTFEg0SXNbKjZAzgbNhJiRmNZdV6GWKWGY1l1EQpVpDJqGFcQIHu3t/RYwJJA315L+fy/PFUTWUShfO+7/l+ut/3PecL7e3tXwCy7dTvLDoxDA0jwiVhVBgXZocV4ZGwPmwKm8Oz4YXwcng1vBm2hffCh2FPOJjak/5n76X/nTfT/83L6T/j2fSfuSn9dzyS/jtnp3+GUemfaUT6ZzzRYwbZ5yBAfYe9bxgeLg1jwqLwaHg6bA3bw97QnjN70z/71vTv8mj6dxuT/l2Tv3NfzwEQAFDUge8Vzggjww1hflgbnksHsjWH414tekxeC49JvPTYzQyPWa9PIdAAEAexr4p/VX4xLAmbMnpT+9Z+i3ClvRYTkyPbZPnGggAqOev7ZP3u68Ny8OTYYfBrpkd6TFfnj4GI7ydAAIAqjH4yfvV14UHwyvhgBHOnAPpY/Ng+lgN99wFAQBdGfs+4fzQnH7ifadxza2d6WPYnD6mfTzHQQDA54M/IHw5LAjPpF+JM57FtCd9jBekj/kArwEEAJTrU/lfSj9x/lLJP4Vfdq3pc2B++pzwrQMEABRs9IeE68O68L7h4wjeT58jyXNliNcOAgDy+T7+RaEl/CS0GTe6qC197rSkzyWfH0AAQEZHf2D6k9uGsNuAUWG70+dW8hwb6DWHAKD6o38yuMbde4ANKS3gAAAABJRU5ErkJggg=="/>
-</defs>
 </svg>`;
 
 interface PasswordRulesProps {
@@ -99,28 +94,33 @@ function Divider() {
 }
 
 interface GoogleButtonProps {
+  isLoading?: boolean;
   onPress: () => void;
 }
 
-function GoogleButton({ onPress }: GoogleButtonProps) {
+function GoogleButton({ isLoading, onPress }: GoogleButtonProps) {
   const { colors, spacing } = useTheme();
   return (
     <Button
       label="Google"
+      loadingLabel="Opening Google"
+      isLoading={isLoading}
+      loadingIndicatorColor={AUTH_BLUE}
       leftElement={<SvgXml xml={googleSvg} width={20} height={20} />}
+      onPress={onPress}
       variant="ghost"
       contentStyle={styles.socialButtonContent}
-      textStyle={styles.optionLabel}
-      onPress={onPress}
       style={[
         styles.socialButton,
         {
-          borderColor: colors.border,
+          backgroundColor: '#FFFFFF',
+          borderColor: '#D0D0D0',
           borderRadius: spacing.sm,
           paddingVertical: spacing.sm + 4,
         },
       ]}
-      textColor="#5E5E5E"
+      textColor={colors.textSecondary}
+      textStyle={styles.optionLabel}
     />
   );
 }
@@ -142,7 +142,7 @@ function SuccessModal({ visible, onGoHome, onSignUp }: SuccessModalProps) {
             { backgroundColor: colors.surface, borderRadius: 16, padding: spacing.xl, gap: 20 },
           ]}
         >
-          <SvgXml xml={successCheckSvg} width={88} height={88} />
+          <AuthSuccessIcon />
           <Typography variant="h3" style={[{ textAlign: 'center' }, styles.fontHeadingSmall]}>
             Welcome back
           </Typography>
@@ -175,8 +175,10 @@ function SuccessModal({ visible, onGoHome, onSignUp }: SuccessModalProps) {
 export function LoginForm() {
   const { spacing, colors } = useTheme();
   const { mutate: login, isPending, error } = useLogin();
+  const { startGoogleAuth, isOpeningGoogleAuth } = useGoogleAuth();
   const [showSuccess, setShowSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [focusedField, setFocusedField] = useState<keyof LoginFormData | null>(null);
 
   const { control, handleSubmit, watch } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -199,7 +201,6 @@ export function LoginForm() {
           type: 'error',
           text1: msg,
           position: 'bottom',
-          // duration: 4000,
         });
       },
     });
@@ -222,27 +223,39 @@ export function LoginForm() {
           name="email"
           render={({ field: { value, onChange, onBlur }, fieldState: { error: fe } }) => (
             <View>
-              <Typography
-                variant="body1"
-                style={{
-                  fontSize: Math.round(16 * TEXT_SCALE),
-                  lineHeight: Math.round(24 * TEXT_SCALE),
-                  marginBottom: 6,
-                }}
-              >
+              <Typography variant="body1" color={colors.text} style={styles.label}>
                 Email
               </Typography>
-              <TextInput
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={fe?.message}
-                keyboardType="email-address"
-                textContentType="emailAddress"
-                placeholder="e.g johndoe@gmail.com"
-                autoCapitalize="none"
-                style={styles.inputText}
-              />
+              <View
+                style={[
+                  styles.inputShell,
+                  { backgroundColor: colors.inputBackground },
+                  focusedField === 'email' && styles.inputShellActive,
+                  fe && { borderColor: colors.error },
+                ]}
+              >
+                <RNTextInput
+                  value={value}
+                  onChangeText={onChange}
+                  onFocus={() => setFocusedField('email')}
+                  onBlur={() => {
+                    onBlur();
+                    setFocusedField(null);
+                  }}
+                  keyboardType="email-address"
+                  textContentType="emailAddress"
+                  placeholder="Enter your email"
+                  placeholderTextColor={colors.textSecondary}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  style={[styles.textInput, { color: colors.text }]}
+                />
+              </View>
+              {fe?.message && (
+                <Typography variant="body1" color={colors.error} style={styles.fieldError}>
+                  {fe.message}
+                </Typography>
+              )}
             </View>
           )}
         />
@@ -253,34 +266,45 @@ export function LoginForm() {
             name="password"
             render={({ field: { value, onChange, onBlur }, fieldState: { error: fe } }) => (
               <View>
-                <Typography
-                  variant="body1"
-                  style={{
-                    fontSize: Math.round(16 * TEXT_SCALE),
-                    lineHeight: Math.round(24 * TEXT_SCALE),
-                    marginBottom: 6,
-                  }}
-                >
+                <Typography variant="body1" color={colors.text} style={styles.label}>
                   Password
                 </Typography>
-                <TextInput
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  error={fe?.message}
-                  secureTextEntry={!showPassword}
-                  textContentType="password"
-                  placeholder="Enter your password"
-                  style={styles.inputText}
-                  rightElement={
-                    <TouchableOpacity
-                      onPress={() => setShowPassword((v) => !v)}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                    >
-                      <SvgXml xml={showPassword ? eyeSvg : eyeSlashSvg} width={20} height={20} />
-                    </TouchableOpacity>
-                  }
-                />
+                <View
+                  style={[
+                    styles.inputShell,
+                    { backgroundColor: colors.inputBackground },
+                    focusedField === 'password' && styles.inputShellActive,
+                    fe && { borderColor: colors.error },
+                  ]}
+                >
+                  <RNTextInput
+                    value={value}
+                    onChangeText={onChange}
+                    onFocus={() => setFocusedField('password')}
+                    onBlur={() => {
+                      onBlur();
+                      setFocusedField(null);
+                    }}
+                    secureTextEntry={!showPassword}
+                    textContentType="password"
+                    placeholder="Enter your password"
+                    placeholderTextColor={colors.textSecondary}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    style={[styles.textInput, { color: colors.text }]}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword((v) => !v)}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  >
+                    <SvgXml xml={showPassword ? eyeSvg : eyeSlashSvg} width={20} height={20} />
+                  </TouchableOpacity>
+                </View>
+                {fe?.message && (
+                  <Typography variant="body1" color={colors.error} style={styles.fieldError}>
+                    {fe.message}
+                  </Typography>
+                )}
               </View>
             )}
           />
@@ -291,11 +315,7 @@ export function LoginForm() {
             onPress={() => router.push('/(auth)/forgot-password' as never)}
             style={{ alignSelf: 'flex-end' }}
           >
-            <Typography
-              variant="body2"
-              color={colors.primary}
-              style={[styles.forgotText, styles.forgotLink]}
-            >
+            <Typography variant="body1" color={colors.primary} style={styles.forgotText}>
               Forgot Password?
             </Typography>
           </TouchableOpacity>
@@ -318,26 +338,24 @@ export function LoginForm() {
 
         <Divider />
 
-        <View style={styles.socialSection}>
-          <GoogleButton onPress={showComingSoon} />
+        <GoogleButton isLoading={isOpeningGoogleAuth} onPress={startGoogleAuth} />
 
-          <Button
-            label="Continue as guest"
-            variant="ghost"
-            contentStyle={styles.socialButtonContent}
-            style={[
-              styles.socialButton,
-              {
-                borderColor: colors.border,
-                borderRadius: spacing.sm,
-                paddingVertical: spacing.sm + 4,
-              },
-            ]}
-            onPress={showComingSoon}
-            textStyle={styles.optionLabel}
-            textColor="#5E5E5E"
-          />
-        </View>
+        <Button
+          label="Continue as guest"
+          variant="ghost"
+          style={[
+            styles.socialButton,
+            {
+              backgroundColor: '#FFFFFF',
+              borderColor: '#D0D0D0',
+              borderRadius: spacing.sm,
+              paddingVertical: spacing.sm + 4,
+            },
+          ]}
+          onPress={showComingSoon}
+          textColor={colors.textSecondary}
+          textStyle={styles.optionLabel}
+        />
 
         <View style={styles.signupRow}>
           <Typography variant="body2" color={colors.textSecondary} style={styles.signupText}>
@@ -386,15 +404,15 @@ const styles = StyleSheet.create({
     width: 0,
   },
   ruleText: {
-    fontSize: Math.round(15 * TEXT_SCALE),
-    lineHeight: Math.round(22 * TEXT_SCALE),
+    fontSize: 14,
+    lineHeight: 20,
   },
 
   dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   dividerLine: { flex: 1, height: 1 },
   dividerText: {
-    fontSize: Math.round(17 * TEXT_SCALE),
-    lineHeight: Math.round(25 * TEXT_SCALE),
+    fontSize: 14,
+    lineHeight: 20,
     paddingHorizontal: 4,
   },
 
@@ -403,35 +421,65 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
-    minHeight: 52,
-    width: '100%',
+    minHeight: 45,
   },
   socialButtonContent: {
     justifyContent: 'center',
     width: '100%',
   },
-  inputText: {
-    fontSize: Math.round(17 * TEXT_SCALE),
-    lineHeight: Math.round(25 * TEXT_SCALE),
+  label: {
+    fontSize: 14,
+    lineHeight: 20,
+    letterSpacing: 0,
+  },
+  inputShell: {
+    alignItems: 'center',
+    borderColor: '#D0D0D0',
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: 'row',
+    height: 52,
+    justifyContent: 'space-between',
+    marginTop: 3,
+    paddingHorizontal: 20,
+  },
+  inputShellActive: {
+    borderColor: '#1565C0',
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '400',
+    lineHeight: 20,
+    letterSpacing: 0,
+    padding: 0,
+  },
+  fieldError: {
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: 4,
   },
   forgotText: {
-    fontSize: Math.round(14 * TEXT_SCALE),
-    lineHeight: Math.round(21 * TEXT_SCALE),
+    fontSize: 14,
+    fontFamily: 'Inter_600SemiBold',
+    lineHeight: 20,
+    textDecorationLine: 'underline',
   },
   forgotLink: {
     textDecorationLine: 'underline',
   },
   primaryButton: {
-    minHeight: 52,
+    minHeight: 45,
   },
   primaryButtonLabel: {
-    fontSize: Math.round(18 * TEXT_SCALE),
-    lineHeight: Math.round(26 * TEXT_SCALE),
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: 'Inter_600SemiBold',
   },
   optionLabel: {
-    fontSize: Math.round(18 * TEXT_SCALE),
-    fontWeight: '600',
-    lineHeight: Math.round(26 * TEXT_SCALE),
+    fontSize: 14,
+    fontFamily: 'Inter_600SemiBold',
+    lineHeight: 20,
   },
 
   modalOverlay: {
@@ -456,11 +504,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   signupText: {
-    fontSize: Math.round(16 * TEXT_SCALE),
-    lineHeight: Math.round(24 * TEXT_SCALE),
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: 'Inter_600SemiBold',
   },
   signupLink: {
-    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
 
   socialSection: {
