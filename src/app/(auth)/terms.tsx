@@ -202,9 +202,9 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     flex: 1,
-    fontSize: 24,
+    fontSize: 16,
     fontWeight: '600',
-    lineHeight: 32,
+    lineHeight: 24,
   },
   headerSpacer: {
     width: 44,
@@ -212,9 +212,11 @@ const styles = StyleSheet.create({
   hero: {
     alignItems: 'center',
     backgroundColor: BLUE,
-    height: 135,
+    height: 61,
     justifyContent: 'center',
     overflow: 'hidden',
+    paddingVertical: 6,
+    paddingHorizontal: 16,
   },
   heroShape: {
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
@@ -231,21 +233,21 @@ const styles = StyleSheet.create({
     left: 330,
   },
   heroTitle: {
-    fontSize: 32,
-    lineHeight: 40,
+    fontSize: 20,
+    lineHeight: 28,
   },
   heroSubtitle: {
-    fontSize: 18,
-    lineHeight: 28,
-    marginTop: 10,
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: 4,
   },
   sections: {
     paddingBottom: 48,
     paddingHorizontal: 36,
-    paddingTop: 34,
+    paddingTop: 16,
   },
   section: {
-    marginBottom: 44,
+    marginBottom: 20,
   },
   sectionHeader: {
     alignItems: 'center',
@@ -256,16 +258,16 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: TEXT,
     flex: 1,
-    fontSize: 25,
+    fontSize: 16,
     fontWeight: '600',
-    lineHeight: 34,
+    lineHeight: 24,
   },
   sectionContent: {
-    marginTop: 42,
+    marginTop: 25,
   },
   bodyText: {
-    fontSize: 22,
-    lineHeight: 32,
+    fontSize: 14,
+    lineHeight: 20,
     marginBottom: 18,
   },
   bulletRow: {
@@ -275,12 +277,12 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
   },
   bulletMark: {
-    fontSize: 20,
-    lineHeight: 30,
+    fontSize: 14,
+    lineHeight: 20,
   },
   bulletText: {
     flex: 1,
-    fontSize: 20,
-    lineHeight: 30,
+    fontSize: 14,
+    lineHeight: 20,
   },
 });

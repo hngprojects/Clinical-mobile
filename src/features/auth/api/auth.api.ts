@@ -153,7 +153,7 @@ interface ForgotPasswordRequest {
 
 interface ResetPasswordRequest {
   token: string;
-  new_password: string;
+  newPassword: string;
 }
 
 interface ResetPasswordResponse {
@@ -173,7 +173,7 @@ async function resetPassword(data: ResetPasswordRequest): Promise<ResetPasswordR
     '/api/v1/auth/reset-password',
     {
       token: data.token,
-      new_password: data.new_password,
+      new_password: data.newPassword,
     },
   );
   return requireData(response.data) as ResetPasswordResponse;
