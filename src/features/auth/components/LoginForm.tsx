@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Dimensions, Modal, Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import Toast from 'react-native-toast-message';
 
@@ -105,24 +105,23 @@ interface GoogleButtonProps {
 function GoogleButton({ onPress }: GoogleButtonProps) {
   const { colors, spacing } = useTheme();
   return (
-    <Pressable
+    <Button
+      label="Google"
+      leftElement={<SvgXml xml={googleSvg} width={20} height={20} />}
+      variant="ghost"
+      contentStyle={styles.socialButtonContent}
+      textStyle={styles.optionLabel}
       onPress={onPress}
-      style={({ pressed }) => [
+      style={[
         styles.socialButton,
         {
           borderColor: colors.border,
           borderRadius: spacing.sm,
           paddingVertical: spacing.sm + 4,
         },
-        pressed && styles.pressed,
       ]}
-      android_ripple={{ color: colors.border }}
-    >
-      <SvgXml xml={googleSvg} width={20} height={20} />
-      <Typography variant="body1" style={[styles.optionLabel, { marginLeft: 8 }]}>
-        Google
-      </Typography>
-    </Pressable>
+      textColor="#5E5E5E"
+    />
   );
 }
 
@@ -222,18 +221,29 @@ export function LoginForm() {
           control={control}
           name="email"
           render={({ field: { value, onChange, onBlur }, fieldState: { error: fe } }) => (
-            <TextInput
-              label="Email"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              error={fe?.message}
-              keyboardType="email-address"
-              textContentType="emailAddress"
-              placeholder="e.g johndoe@gmail.com"
-              autoCapitalize="none"
-              style={styles.inputText}
-            />
+            <View>
+              <Typography
+                variant="body1"
+                style={{
+                  fontSize: Math.round(16 * TEXT_SCALE),
+                  lineHeight: Math.round(24 * TEXT_SCALE),
+                  marginBottom: 6,
+                }}
+              >
+                Email
+              </Typography>
+              <TextInput
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={fe?.message}
+                keyboardType="email-address"
+                textContentType="emailAddress"
+                placeholder="e.g johndoe@gmail.com"
+                autoCapitalize="none"
+                style={styles.inputText}
+              />
+            </View>
           )}
         />
 
@@ -242,25 +252,36 @@ export function LoginForm() {
             control={control}
             name="password"
             render={({ field: { value, onChange, onBlur }, fieldState: { error: fe } }) => (
-              <TextInput
-                label="Password"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={fe?.message}
-                secureTextEntry={!showPassword}
-                textContentType="password"
-                placeholder="Enter your password"
-                style={styles.inputText}
-                rightElement={
-                  <TouchableOpacity
-                    onPress={() => setShowPassword((v) => !v)}
-                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                  >
-                    <SvgXml xml={showPassword ? eyeSvg : eyeSlashSvg} width={20} height={20} />
-                  </TouchableOpacity>
-                }
-              />
+              <View>
+                <Typography
+                  variant="body1"
+                  style={{
+                    fontSize: Math.round(16 * TEXT_SCALE),
+                    lineHeight: Math.round(24 * TEXT_SCALE),
+                    marginBottom: 6,
+                  }}
+                >
+                  Password
+                </Typography>
+                <TextInput
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={fe?.message}
+                  secureTextEntry={!showPassword}
+                  textContentType="password"
+                  placeholder="Enter your password"
+                  style={styles.inputText}
+                  rightElement={
+                    <TouchableOpacity
+                      onPress={() => setShowPassword((v) => !v)}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      <SvgXml xml={showPassword ? eyeSvg : eyeSlashSvg} width={20} height={20} />
+                    </TouchableOpacity>
+                  }
+                />
+              </View>
             )}
           />
 
@@ -270,7 +291,11 @@ export function LoginForm() {
             onPress={() => router.push('/(auth)/forgot-password' as never)}
             style={{ alignSelf: 'flex-end' }}
           >
-            <Typography variant="label" color={colors.primary}>
+            <Typography
+              variant="body2"
+              color={colors.primary}
+              style={[styles.forgotText, styles.forgotLink]}
+            >
               Forgot Password?
             </Typography>
           </TouchableOpacity>
@@ -293,22 +318,26 @@ export function LoginForm() {
 
         <Divider />
 
-        <GoogleButton onPress={showComingSoon} />
+        <View style={styles.socialSection}>
+          <GoogleButton onPress={showComingSoon} />
 
-        <Button
-          label="Continue as guest"
-          variant="ghost"
-          style={[
-            styles.socialButton,
-            {
-              borderColor: colors.border,
-              borderRadius: spacing.sm,
-              paddingVertical: spacing.sm + 4,
-            },
-          ]}
-          onPress={showComingSoon}
-          textStyle={styles.optionLabel}
-        />
+          <Button
+            label="Continue as guest"
+            variant="ghost"
+            contentStyle={styles.socialButtonContent}
+            style={[
+              styles.socialButton,
+              {
+                borderColor: colors.border,
+                borderRadius: spacing.sm,
+                paddingVertical: spacing.sm + 4,
+              },
+            ]}
+            onPress={showComingSoon}
+            textStyle={styles.optionLabel}
+            textColor="#5E5E5E"
+          />
+        </View>
 
         <View style={styles.signupRow}>
           <Typography variant="body2" color={colors.textSecondary} style={styles.signupText}>
@@ -375,10 +404,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1.5,
     minHeight: 52,
+    width: '100%',
   },
-  pressed: {
-    opacity: 0.78,
-    transform: [{ scale: 0.98 }],
+  socialButtonContent: {
+    justifyContent: 'center',
+    width: '100%',
   },
   inputText: {
     fontSize: Math.round(17 * TEXT_SCALE),
@@ -387,6 +417,9 @@ const styles = StyleSheet.create({
   forgotText: {
     fontSize: Math.round(14 * TEXT_SCALE),
     lineHeight: Math.round(21 * TEXT_SCALE),
+  },
+  forgotLink: {
+    textDecorationLine: 'underline',
   },
   primaryButton: {
     minHeight: 52,
@@ -428,6 +461,12 @@ const styles = StyleSheet.create({
   },
   signupLink: {
     fontWeight: '600',
+  },
+
+  socialSection: {
+    alignItems: 'center',
+    gap: 12,
+    width: '100%',
   },
 
   fontHeadingSmall: {
