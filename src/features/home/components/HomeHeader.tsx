@@ -23,7 +23,7 @@ export function HomeHeader({ name = 'User' }: HomeHeaderProps) {
         </Typography>
       </View>
       <Pressable
-        onPress={() => router.push('/(main)/notifications')}
+        onPress={() => router.push('/(main)/notifications' as never)}
         style={[styles.bellButton, { backgroundColor: colors.cardBackground }]}
       >
         <Ionicons name="notifications-outline" size={22} color={colors.text} />

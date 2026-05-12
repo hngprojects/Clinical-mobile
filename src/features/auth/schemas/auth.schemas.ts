@@ -14,12 +14,11 @@ export const registerSchema = z
       .string()
       .min(8, 'Minimum 8 characters')
       .regex(/[A-Z]/, 'Must contain an uppercase letter')
-      // .regex(/[0-9]/, 'Must contain a number'),
-      .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Password must one special character'),
+      .regex(/[^A-Za-z0-9]/, 'Must contain a special character'),
     confirmPassword: z.string(),
   })
   .refine((d) => d.password === d.confirmPassword, {
-    message: "Passwords don't match",
+    message: 'Password does not match',
     path: ['confirmPassword'],
   });
 

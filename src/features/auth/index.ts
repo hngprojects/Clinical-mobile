@@ -2,11 +2,14 @@ export { authApi } from './api/auth.api';
 export type {
   AuthResponse,
   AuthTokens,
+  RegisterOtpResponse,
   LoginRequest,
   RegisterRequest,
   UserProfile,
+  VerifyOtpRequest,
 } from './api/auth.types';
 export { LoginForm } from './components/LoginForm';
+export { OtpVerificationScreen } from './components/OtpVerificationScreen';
 export { RegisterForm } from './components/RegisterForm';
 export { useAuthSession } from './hooks/useAuthSession';
 export { useLogin } from './hooks/useLogin';

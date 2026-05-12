@@ -8,6 +8,7 @@ export function useAppReady() {
   useEffect(() => {
     async function init() {
       try {
+        const { authApi } = await import('@/features/auth/api/auth.api');
         const { useAuthStore } = await import('@/features/auth/store/auth.store');
         const { useOnboardingStore } = await import('@/features/onboarding/store/onboarding.store');
 
@@ -18,6 +19,12 @@ export function useAppReady() {
 
         if (tokens) {
           useAuthStore.getState().setTokens(tokens);
+          try {
+            const user = await authApi.me();
+            useAuthStore.getState().setSession(tokens, user);
+          } catch {
+            useAuthStore.getState().clearSession();
+          }
         }
       } catch (e) {
         console.warn('App init error:', e);

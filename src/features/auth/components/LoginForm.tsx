@@ -1,8 +1,9 @@
+import { Ionicons } from '@expo/vector-icons';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Modal, Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Modal, Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import Toast from 'react-native-toast-message';
 
@@ -13,6 +14,10 @@ import { useTheme } from '@/shared/theme';
 import { PASSWORD_RULES } from '../constants/passwordRules';
 import { useLogin } from '../hooks/useLogin';
 import { LoginFormData, loginSchema } from '../schemas/auth.schemas';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const TEXT_SCALE = Math.min(Math.max(SCREEN_WIDTH / 375, 1), 1.12);
+const AUTH_BLUE = '#1F6DC9';
 
 const googleSvg = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M19.8055 8.0415H19V8H10V12H15.6515C14.827 14.3285 12.6115 16 10 16C6.6865 16 4 13.3135 4 10C4 6.6865 6.6865 4 10 4C11.5295 4 12.921 4.577 13.9805 5.5195L16.809 2.691C15.023 1.0265 12.634 0 10 0C4.4775 0 0 4.4775 0 10C0 15.5225 4.4775 20 10 20C15.5225 20 20 15.5225 20 10C20 9.3295 19.931 8.675 19.8055 8.0415Z" fill="#FFC107"/>
@@ -57,6 +62,12 @@ function PasswordRules({ value }: PasswordRulesProps) {
         const isPassing = rule.test(value);
         return (
           <View key={i} style={styles.ruleRow}>
+            <Ionicons
+              name={isPassing ? 'checkmark' : 'close'}
+              size={18}
+              color={isPassing ? colors.success || '#10B981' : colors.error}
+              style={styles.ruleIcon}
+            />
             <Typography
               variant="body2"
               color={isPassing ? colors.success || '#10B981' : colors.error}
@@ -64,7 +75,7 @@ function PasswordRules({ value }: PasswordRulesProps) {
             >
               {isPassing ? '✓' : '✕'}
             </Typography>
-            <Typography variant="body2" color={colors.textSecondary}>
+            <Typography variant="body2" color={colors.textSecondary} style={styles.ruleText}>
               {rule.label}
             </Typography>
           </View>
@@ -96,18 +107,19 @@ function GoogleButton({ onPress }: GoogleButtonProps) {
   return (
     <Pressable
       onPress={onPress}
-      style={[
+      style={({ pressed }) => [
         styles.socialButton,
         {
           borderColor: colors.border,
           borderRadius: spacing.sm,
           paddingVertical: spacing.sm + 4,
         },
+        pressed && styles.pressed,
       ]}
       android_ripple={{ color: colors.border }}
     >
       <SvgXml xml={googleSvg} width={20} height={20} />
-      <Typography variant="body1" style={{ marginLeft: 8, fontWeight: '500' }}>
+      <Typography variant="body1" style={[styles.optionLabel, { marginLeft: 8 }]}>
         Google
       </Typography>
     </Pressable>
@@ -194,6 +206,15 @@ export function LoginForm() {
     });
   };
 
+  const showComingSoon = () => {
+    Toast.show({
+      type: 'info',
+      text1: 'Coming soon',
+      text2: 'ClinSight is working on this.',
+      position: 'bottom',
+    });
+  };
+
   return (
     <>
       <View style={[styles.container, { gap: spacing.md }]}>
@@ -211,6 +232,7 @@ export function LoginForm() {
               textContentType="emailAddress"
               placeholder="e.g johndoe@gmail.com"
               autoCapitalize="none"
+              style={styles.inputText}
             />
           )}
         />
@@ -229,6 +251,7 @@ export function LoginForm() {
                 secureTextEntry={!showPassword}
                 textContentType="password"
                 placeholder="Enter your password"
+                style={styles.inputText}
                 rightElement={
                   <TouchableOpacity
                     onPress={() => setShowPassword((v) => !v)}
@@ -244,7 +267,7 @@ export function LoginForm() {
           <PasswordRules value={passwordValue} />
 
           <TouchableOpacity
-            onPress={() => router.push('/(auth)/forgot-password')}
+            onPress={() => router.push('/(auth)/forgot-password' as never)}
             style={{ alignSelf: 'flex-end' }}
           >
             <Typography variant="label" color={colors.primary}>
@@ -257,13 +280,20 @@ export function LoginForm() {
           label="Login"
           onPress={handleSubmit(onSubmit)}
           isLoading={isPending}
-          style={{ marginTop: spacing.xs }}
+          style={[
+            styles.primaryButton,
+            {
+              marginTop: spacing.xs,
+              backgroundColor: isLoginDisabled ? '#F5F5F5' : AUTH_BLUE,
+            },
+          ]}
+          textStyle={styles.primaryButtonLabel}
           disabled={isLoginDisabled}
         />
 
         <Divider />
 
-        <GoogleButton onPress={() => {}} />
+        <GoogleButton onPress={showComingSoon} />
 
         <Button
           label="Continue as guest"
@@ -276,15 +306,20 @@ export function LoginForm() {
               paddingVertical: spacing.sm + 4,
             },
           ]}
-          onPress={() => router.replace('/(main)')}
+          onPress={showComingSoon}
+          textStyle={styles.optionLabel}
         />
 
         <View style={styles.signupRow}>
-          <Typography variant="body2" color={colors.textSecondary}>
+          <Typography variant="body2" color={colors.textSecondary} style={styles.signupText}>
             Don&apos;t have an account?{' '}
           </Typography>
           <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-            <Typography variant="body2" color={colors.primary} style={{ fontWeight: '600' }}>
+            <Typography
+              variant="body2"
+              color={colors.primary}
+              style={[styles.signupText, styles.signupLink]}
+            >
               Sign Up
             </Typography>
           </TouchableOpacity>
@@ -315,17 +350,55 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  ruleCross: { width: 14 },
+  ruleIcon: { width: 18 },
+  ruleCross: {
+    height: 0,
+    opacity: 0,
+    width: 0,
+  },
+  ruleText: {
+    fontSize: Math.round(15 * TEXT_SCALE),
+    lineHeight: Math.round(22 * TEXT_SCALE),
+  },
 
   dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   dividerLine: { flex: 1, height: 1 },
-  dividerText: { paddingHorizontal: 4 },
+  dividerText: {
+    fontSize: Math.round(17 * TEXT_SCALE),
+    lineHeight: Math.round(25 * TEXT_SCALE),
+    paddingHorizontal: 4,
+  },
 
   socialButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
+    minHeight: 52,
+  },
+  pressed: {
+    opacity: 0.78,
+    transform: [{ scale: 0.98 }],
+  },
+  inputText: {
+    fontSize: Math.round(17 * TEXT_SCALE),
+    lineHeight: Math.round(25 * TEXT_SCALE),
+  },
+  forgotText: {
+    fontSize: Math.round(14 * TEXT_SCALE),
+    lineHeight: Math.round(21 * TEXT_SCALE),
+  },
+  primaryButton: {
+    minHeight: 52,
+  },
+  primaryButtonLabel: {
+    fontSize: Math.round(18 * TEXT_SCALE),
+    lineHeight: Math.round(26 * TEXT_SCALE),
+  },
+  optionLabel: {
+    fontSize: Math.round(18 * TEXT_SCALE),
+    fontWeight: '600',
+    lineHeight: Math.round(26 * TEXT_SCALE),
   },
 
   modalOverlay: {
@@ -348,6 +421,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  signupText: {
+    fontSize: Math.round(16 * TEXT_SCALE),
+    lineHeight: Math.round(24 * TEXT_SCALE),
+  },
+  signupLink: {
+    fontWeight: '600',
   },
 
   fontHeadingSmall: {
