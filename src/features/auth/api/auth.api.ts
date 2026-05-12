@@ -146,4 +146,37 @@ async function me(): Promise<UserProfile> {
   return mapUser(requireData(response.data));
 }
 
-export const authApi = { login, register, verifySignUpOtp, resendSignUpOtp, me };
+interface ForgotPasswordRequest {
+  email: string;
+  source?: 'web' | 'mobile';
+}
+
+interface ResetPasswordRequest {
+  token: string;
+  new_password: string;
+}
+
+interface ResetPasswordResponse {
+  status: string;
+  message: string;
+}
+
+async function forgotPassword(data: ForgotPasswordRequest): Promise<void> {
+  await client.post('/api/v1/auth/forgot-password', {
+    email: data.email.trim(),
+    source: data.source || 'mobile',
+  });
+}
+
+async function resetPassword(data: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+  const response = await client.post<ApiSuccess<ResetPasswordResponse>>(
+    '/api/v1/auth/reset-password',
+    {
+      token: data.token,
+      new_password: data.new_password,
+    },
+  );
+  return requireData(response.data) as ResetPasswordResponse;
+}
+
+export const authApi = { login, register, verifySignUpOtp, resendSignUpOtp, me, forgotPassword, resetPassword };
