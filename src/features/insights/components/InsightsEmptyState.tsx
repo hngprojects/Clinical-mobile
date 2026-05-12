@@ -1,38 +1,29 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { Typography } from '@/shared/components';
 import { useTheme } from '@/shared/theme';
 
-interface UploadCardProps {
+const emptyInsights = require('../../../../assets/images/empty-insights.png');
+
+interface InsightsEmptyStateProps {
   onUpload?: () => void;
 }
 
-export function UploadCard({ onUpload }: UploadCardProps) {
+export function InsightsEmptyState({ onUpload }: InsightsEmptyStateProps) {
   const { colors, spacing } = useTheme();
 
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: colors.cardBackground,
-          marginHorizontal: spacing.md,
-          padding: spacing.xl,
-          borderRadius: 16,
-          gap: spacing.md,
-          borderWidth: 1,
-          borderColor: '#F0F0F0',
-        },
-      ]}
-    >
+    <View style={[styles.container, { gap: spacing.md }]}>
+      <Image source={emptyInsights} style={styles.image} resizeMode="contain" />
+
       <View style={styles.textGroup}>
-        <Typography variant="h2" align="center">
-          Upload your result
+        <Typography variant="h2" align="center" style={styles.title}>
+          No insights yet
         </Typography>
-        <Typography variant="body2" color={colors.textSecondary} align="center">
-          Upload your lab report to get started
+        <Typography variant="body1" color={colors.textSecondary} align="center">
+          Upload your first lab report to get started
         </Typography>
       </View>
 
@@ -51,10 +42,22 @@ export function UploadCard({ onUpload }: UploadCardProps) {
 }
 
 const styles = StyleSheet.create({
-  card: {},
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+  },
+  image: {
+    width: 220,
+    height: 200,
+    alignSelf: 'center',
+  },
   textGroup: {
     alignItems: 'center',
     gap: 6,
+  },
+  title: {
+    fontWeight: '700',
   },
   uploadButton: {
     backgroundColor: '#2563EB',
