@@ -3,17 +3,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Dimensions, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 
 import { Button, GoogleLogo, Typography } from '@/shared/components';
 import { useTheme } from '@/shared/theme';
 
+import { useGoogleAuth } from '../hooks/useGoogleAuth';
 import { useRegister } from '../hooks/useRegister';
 import { RegisterFormData, registerSchema } from '../schemas/auth.schemas';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const TEXT_SCALE = Math.min(Math.max(SCREEN_WIDTH / 375, 1), 1.12);
 const AUTH_BLUE = '#1F6DC9';
 
 type FieldName = keyof RegisterFormData;
@@ -34,6 +33,7 @@ export function RegisterForm({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { mutate: register, isPending, error } = useRegister();
+  const { startGoogleAuth, isOpeningGoogleAuth } = useGoogleAuth();
 
   const {
     control,
@@ -217,7 +217,7 @@ export function RegisterForm({
 
       <Button
         label={isOtpSent ? 'Verify Email' : 'Continue'}
-        loadingLabel="Creating Account"
+        loadingLabel="Creating Account..."
         loadingIndicatorColor={AUTH_BLUE}
         isLoading={isPending}
         disabled={!isOtpSent && !isValid}
@@ -241,7 +241,13 @@ export function RegisterForm({
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
       </View>
 
-      <AuthOptionButton label="Google" showGoogleLogo onPress={showComingSoon} />
+      <AuthOptionButton
+        label="Google"
+        loadingLabel="Opening Google"
+        isLoading={isOpeningGoogleAuth}
+        showGoogleLogo
+        onPress={startGoogleAuth}
+      />
       <AuthOptionButton label="Continue as guest" onPress={showComingSoon} />
 
       <View style={styles.loginRow}>
@@ -315,7 +321,7 @@ function ControlledInput({
   onBlur,
 }: ControlledInputProps) {
   const { colors } = useTheme();
-  const showError = !!error && name !== 'password' && name !== 'email';
+  const showError = !!error && name !== 'password';
 
   return (
     <View style={styles.field}>
@@ -365,36 +371,39 @@ function ControlledInput({
 }
 
 function AuthOptionButton({
+  isLoading,
   label,
+  loadingLabel,
   showGoogleLogo,
   onPress,
 }: {
+  isLoading?: boolean;
   label: string;
+  loadingLabel?: string;
   showGoogleLogo?: boolean;
   onPress: () => void;
 }) {
   const { colors, spacing } = useTheme();
   return (
-    <Pressable
-      accessibilityRole="button"
+    <Button
+      label={label}
+      loadingLabel={loadingLabel}
+      isLoading={isLoading}
+      loadingIndicatorColor={AUTH_BLUE}
+      leftElement={showGoogleLogo ? <GoogleLogo size={20} /> : undefined}
       onPress={onPress}
-      style={({ pressed }) => [
+      style={[
         styles.optionButton,
         {
-          borderColor: colors.border,
+          backgroundColor: '#FFFFFF',
+          borderColor: '#D0D0D0',
           borderRadius: spacing.sm,
           paddingVertical: spacing.sm + 4,
         },
-        pressed && styles.pressed,
       ]}
-    >
-      <View style={styles.optionContent}>
-        {showGoogleLogo && <GoogleLogo size={20} />}
-        <Typography variant="body1" color={colors.textSecondary} style={styles.optionLabel}>
-          {label}
-        </Typography>
-      </View>
-    </Pressable>
+      textColor={colors.textSecondary}
+      textStyle={styles.optionLabel}
+    />
   );
 }
 
@@ -421,9 +430,9 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    fontSize: Math.round(17 * TEXT_SCALE),
+    fontSize: 14,
     fontWeight: '400',
-    lineHeight: Math.round(25 * TEXT_SCALE),
+    lineHeight: 20,
     letterSpacing: 0,
     padding: 0,
   },
@@ -442,18 +451,22 @@ const styles = StyleSheet.create({
     width: 18,
   },
   label: {
-    fontSize: Math.round(16 * TEXT_SCALE),
-    lineHeight: Math.round(24 * TEXT_SCALE),
+    fontSize: 14,
+    lineHeight: 20,
     letterSpacing: 0,
   },
   criteriaText: {
-    fontSize: Math.round(16 * TEXT_SCALE),
-    lineHeight: Math.round(24 * TEXT_SCALE),
+    fontSize: 14,
+    lineHeight: 20,
   },
   fieldError: {
+    fontSize: 12,
+    lineHeight: 18,
     marginTop: -4,
   },
   apiError: {
+    fontSize: 12,
+    lineHeight: 18,
     marginTop: -6,
   },
   dividerRow: {
@@ -469,34 +482,29 @@ const styles = StyleSheet.create({
     height: 1,
   },
   dividerText: {
-    fontSize: Math.round(17 * TEXT_SCALE),
-    lineHeight: Math.round(25 * TEXT_SCALE),
+    fontSize: 14,
+    lineHeight: 20,
   },
   primaryButtonLabel: {
-    fontSize: Math.round(18 * TEXT_SCALE),
-    lineHeight: Math.round(26 * TEXT_SCALE),
+    fontSize: 14,
+    fontFamily: 'Inter_600SemiBold',
+    lineHeight: 20,
   },
   continueButton: {
-    minHeight: 52,
+    minHeight: 45,
   },
   optionButton: {
-    alignItems: 'center',
     borderWidth: 1.5,
-    justifyContent: 'center',
+    minHeight: 45,
   },
   pressed: {
     opacity: 0.78,
     transform: [{ scale: 0.98 }],
   },
-  optionContent: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 14,
-  },
   optionLabel: {
-    fontSize: Math.round(18 * TEXT_SCALE),
-    fontWeight: '600',
-    lineHeight: Math.round(26 * TEXT_SCALE),
+    fontSize: 14,
+    fontFamily: 'Inter_600SemiBold',
+    lineHeight: 20,
   },
   loginRow: {
     alignItems: 'center',
@@ -509,16 +517,16 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
   loginText: {
-    fontSize: Math.round(17 * TEXT_SCALE),
-    fontWeight: '600',
-    lineHeight: Math.round(25 * TEXT_SCALE),
+    fontSize: 14,
+    fontFamily: 'Inter_600SemiBold',
+    lineHeight: 20,
   },
   termsBlock: {
     alignItems: 'center',
     marginTop: 18,
   },
   termsText: {
-    fontSize: Math.round(16 * TEXT_SCALE),
-    lineHeight: Math.round(24 * TEXT_SCALE),
+    fontSize: 12,
+    lineHeight: 18,
   },
 });

@@ -15,7 +15,7 @@ const palette = {
 } as const;
 
 export const lightColors = {
-  background: palette.grey50,
+  background: '#FFFFFE',
   surface: palette.white,
   primary: palette.primary500,
   primaryPressed: palette.primary600,
