@@ -52,9 +52,9 @@ export function OnboardingSlide({ slide }: OnboardingSlideProps) {
             {
               color: brand.colors.onboardingTitle,
               fontFamily: brand.fonts.interSemiBold,
-              fontSize: 24 * textScale,
-              lineHeight: 31 * textScale,
-              letterSpacing: -0.48 * textScale,
+              fontSize: 24,
+              lineHeight: 31,
+              letterSpacing: -0.48,
             },
           ]}
         >

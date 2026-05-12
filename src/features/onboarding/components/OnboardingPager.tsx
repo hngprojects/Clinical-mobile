@@ -116,8 +116,8 @@ export function OnboardingPager({
         style={[
           styles.footer,
           {
-            width: pagerContentWidth,
             marginTop: SUBTITLE_TO_DOTS_GAP,
+            paddingHorizontal: 16,
             paddingBottom: insets.bottom + FOOTER_BOTTOM_PADDING * layoutScale,
           },
         ]}
@@ -127,74 +127,28 @@ export function OnboardingPager({
         <Button
           label="Get started"
           onPress={onGetStarted}
-          style={[
-            styles.primaryButton,
-            {
-              marginTop: DOTS_TO_PRIMARY_GAP,
-              backgroundColor: brand.colors.onboardingPrimaryCta,
-            },
-          ]}
+          style={{ marginTop: DOTS_TO_PRIMARY_GAP, backgroundColor: brand.colors.onboardingPrimaryCta }}
           textColor={brand.colors.white}
-          textStyle={[
-            styles.primaryButtonText,
-            {
-              fontFamily: brand.fonts.interSemiBold,
-              fontSize: 14 * textScale,
-              lineHeight: 21 * textScale,
-            },
-          ]}
         />
 
         <Button
           label="Continue as guest"
+          variant="outline"
           onPress={onContinueAsGuest}
-          style={[
-            styles.secondaryButton,
-            {
-              marginTop: BUTTON_GAP * layoutScale,
-              borderColor: brand.colors.onboardingSecondaryBorder,
-              backgroundColor: brand.colors.white,
-            },
-          ]}
+          style={{
+            marginTop: 16,
+            borderColor: brand.colors.onboardingSecondaryBorder,
+            backgroundColor: brand.colors.white,
+          }}
           textColor={brand.colors.onboardingSecondaryText}
-          textStyle={[
-            styles.secondaryButtonText,
-            {
-              fontFamily: brand.fonts.interSemiBold,
-              fontSize: 14 * textScale,
-              lineHeight: 21 * textScale,
-            },
-          ]}
         />
 
         <View style={[styles.loginRow, { marginTop: SECONDARY_TO_LOGIN_GAP }]}>
-          <Text
-            style={[
-              styles.loginText,
-              {
-                color: brand.colors.onboardingSecondaryText,
-                fontFamily: brand.fonts.interSemiBold,
-                fontSize: 14 * textScale,
-                lineHeight: 21 * textScale,
-                letterSpacing: -0.14 * textScale,
-              },
-            ]}
-          >
+          <Text style={[styles.loginText, { color: brand.colors.onboardingSecondaryText }]}>
             Already have an account?{' '}
           </Text>
           <Pressable onPress={onLogin} hitSlop={8}>
-            <Text
-              style={[
-                styles.loginLink,
-                {
-                  color: brand.colors.onboardingLink,
-                  fontFamily: brand.fonts.interSemiBold,
-                  fontSize: 14 * textScale,
-                  lineHeight: 21 * textScale,
-                  letterSpacing: -0.14 * textScale,
-                },
-              ]}
-            >
+            <Text style={[styles.loginLink, { color: brand.colors.onboardingLink }]}>
               Login
             </Text>
           </Pressable>
@@ -212,37 +166,7 @@ const styles = StyleSheet.create({
     flexGrow: 0,
   },
   footer: {
-    alignSelf: 'center',
-    alignItems: 'center',
-  },
-  primaryButton: {
-    width: '100%',
-    minHeight: 45,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-  },
-  primaryButtonText: {
-    fontSize: 14,
-    lineHeight: 21,
-    fontWeight: '700',
-  },
-  secondaryButton: {
-    width: '100%',
-    minHeight: 45,
-    borderRadius: 8,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-  },
-  secondaryButtonText: {
-    fontSize: 14,
-    lineHeight: 21,
-    fontWeight: '600',
+    alignSelf: 'stretch',
   },
   loginRow: {
     flexDirection: 'row',
@@ -252,15 +176,13 @@ const styles = StyleSheet.create({
   },
   loginText: {
     fontSize: 14,
-    lineHeight: 21,
-    fontWeight: '600',
-    letterSpacing: -0.14,
+    lineHeight: 20,
+    fontFamily: 'Inter_600SemiBold',
   },
   loginLink: {
     fontSize: 14,
-    lineHeight: 21,
-    fontWeight: '600',
-    letterSpacing: -0.14,
+    lineHeight: 20,
+    fontFamily: 'Inter_600SemiBold',
     textDecorationLine: 'underline',
   },
 });

@@ -52,9 +52,9 @@ export function Button({
   const containerStyle = [
     styles.base,
     {
-      paddingVertical: spacing.sm + 4,
-      paddingHorizontal: spacing.lg,
-      borderRadius: 12,
+      paddingVertical: 12,
+      paddingHorizontal: 24,
+      borderRadius: 8,
       opacity: isDisabled && variant !== 'primary' ? 0.6 : 1,
     },
     variant === 'primary' && {
@@ -127,7 +127,11 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   label: {
-    fontWeight: '600',
+    fontFamily: 'Inter_600SemiBold',
+  },
+  pressed: {
+    opacity: 0.78,
+    transform: [{ scale: 0.98 }],
   },
   pressed: {
     opacity: 0.78,
