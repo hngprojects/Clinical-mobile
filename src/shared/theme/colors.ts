@@ -24,7 +24,7 @@ export const lightColors = {
   textSecondary: palette.grey500,
   border: palette.grey300,
   inputBackground: palette.white,
-  cardBackground: palette.grey100,
+  cardBackground: '#FAFAFA',
   error: palette.error500,
   success: palette.success500,
   warning: palette.warning500,

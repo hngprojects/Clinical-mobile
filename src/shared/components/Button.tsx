@@ -133,4 +133,8 @@ const styles = StyleSheet.create({
     opacity: 0.78,
     transform: [{ scale: 0.98 }],
   },
+  pressed: {
+    opacity: 0.78,
+    transform: [{ scale: 0.98 }],
+  },
 });

@@ -9,18 +9,15 @@ import { Insight, InsightCard } from './InsightCard';
 interface RecentInsightsSectionProps {
   insights: Insight[];
   onViewAll?: () => void;
-  onInsightMenu?: (id: string) => void;
+  onRename?: (id: string, newTitle: string) => void;
+  onDelete?: (id: string) => void;
 }
 
-export function RecentInsightsSection({
-  insights,
-  onViewAll,
-  onInsightMenu,
-}: RecentInsightsSectionProps) {
+export function RecentInsightsSection({ insights, onViewAll, onRename, onDelete }: RecentInsightsSectionProps) {
   const { colors, spacing } = useTheme();
 
   return (
-    <View style={[styles.container, { gap: spacing.sm }]}>
+    <View style={[styles.container, { gap: spacing.md }]}>
       <View style={[styles.header, { paddingHorizontal: spacing.md }]}>
         <Typography variant="h3">Recent Insights</Typography>
         <Pressable onPress={onViewAll} hitSlop={8}>
@@ -30,9 +27,9 @@ export function RecentInsightsSection({
         </Pressable>
       </View>
 
-      <View style={{ gap: spacing.sm }}>
+      <View style={{ gap: spacing.md }}>
         {insights.map((insight) => (
-          <InsightCard key={insight.id} insight={insight} onMenuPress={onInsightMenu} />
+          <InsightCard key={insight.id} insight={insight} onRename={onRename} onDelete={onDelete} />
         ))}
       </View>
     </View>

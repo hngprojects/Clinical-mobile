@@ -15,11 +15,13 @@ export function HomeHeader({ name = 'User' }: HomeHeaderProps) {
   const router = useRouter();
 
   return (
-    <View style={[styles.container, { paddingHorizontal: spacing.md, paddingVertical: spacing.md }]}>
+    <View
+      style={[styles.container, { paddingHorizontal: spacing.md, paddingVertical: spacing.md }]}
+    >
       <View style={styles.textGroup}>
         <Typography variant="h2">Hello, {name}</Typography>
         <Typography variant="body2" color={colors.textSecondary}>
-          Here's a quick overview of your lab results.
+          Here&apos;s a quick overview of your lab results.
         </Typography>
       </View>
       <Pressable
